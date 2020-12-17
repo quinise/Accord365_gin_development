@@ -1,0 +1,67 @@
+<!DOCTYPE html> 
+<html lang="en">   
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+      <script type="text/javascript" src="/node_modules/web3/dist/web3.js"></script>
+      <script type="text/javascript" src="/node_modules/@truffle/contract/dist/truffle-contract.js"></script>
+      <script type="text/javascript" src="/assets/js/sell_token.js"></script>
+      <script type="text/javascript" src="/assets/js/walletBundle.js"></script>
+      <link rel="stylesheet" type="text/css" href="/assets/css/wallet.css">
+      <title>{{ .title }}</title>
+    </head>
+    <body>
+      <div class="wraper">
+      <h1>{{ .title }}</h1>
+        <div class="row">
+          <div class="portis-signin small-content col-4 col-sm-12">
+            <div id="portisButtons">
+              <button class="button" id="showPortis">Show Portis</button>
+              <br />
+              <br />
+              <button class="button" id="Logout">Logout of Portis</button>
+            </div>
+            <div id="portisAddress"></div>
+            <br />
+        </div>
+        <div id="token-sale-app" class="small-content col-4 col-sm-12 py-sm-4 py-0">
+          <h1 class="font-weight-bold">Accord365 TOKEN SALE</h1>
+          <hr />
+          <br />
+        <div id="loader">
+          <p>Loading...</p>
+        </div>
+        <div id="content" class="text-center">
+        <p>
+          Introducing the Accord365 Token!
+          Token price is <span class="token-price"></span> Ether. You currently have 
+          <span class="dapp-balance"></span>&nbsp;Ether.
+        </p>
+        <br/>
+        <form action="/wallet" method="POST" onSubmit="App.buyTokens(); return false;" role="form">
+          <div class="form-group">
+            <div class="input-group">
+              <input id="numberOfTokens" class="form-control input-lg" type="number" name="number" value="1" min="1" pattern="[0-9]">
+              <span class="input-group-btn"><button type="submit" class="btn btn-primary btn-lg">Buy Tokens</button></span>
+            </div>
+          </div>
+        </form>
+        <br>
+          <div class="progress">
+            <div id="progress" class="progress-bar progress-bar-striped active" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <p><span class="tokens-sold"></span> / <span class="tokens-available"></span> tokens sold</p>
+          <hr>
+          <p id="accountAddress"></p>
+        </div>
+        </div> 
+        <div id="logout-button" class="col-4 col-sm-12">
+          <a href='/auth'><button id="button" class="logout-button button">Log Out</button></a>
+        </div>
+        </div>
+      </div>
+    </body>
+</html>

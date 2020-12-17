@@ -1,0 +1,85 @@
+* {
+	vertical-align: baseline;
+	font-weight: inherit;
+	font-family: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	border: 0 none;
+	outline: 0;
+	padding: 0;
+	margin: 0;
+}
+
+h1, h2, a {
+    text-align: center;
+    margin: 100px;
+    display: block;
+
+}
+
+label {
+    text-decoration: solid;
+}
+
+#wrapper {
+    text-align: center;
+    margin: 0 auto;
+}
+
+#page-title {
+    padding: 50px;
+}
+
+#GetBlockContainer {
+    margin: 100px;
+}
+
+#get-blocks-table {
+    border: 1px solid black;
+}
+
+td {
+    border: 1px solid black;
+}
+
+th {
+    text-decoration: solid;
+}
+
+form {
+    display: block;
+    margin: 20px;
+}
+
+.transaction-element {
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    font-size: 22px;
+    text-align: center;
+}
+
+#GetTransactionTab {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.button {
+	display: block;
+    margin: 10px;
+    padding: 15px;
+    width: 200px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: light-grey;
+    border-style: none;
+    text-align: center;
+}

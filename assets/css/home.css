@@ -1,0 +1,55 @@
+* {
+	vertical-align: baseline;
+	font-weight: inherit;
+	font-family: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	border: 0 none;
+	outline: 0;
+	padding: 0;
+    margin: 0;
+}
+
+h1 {
+	text-align: center;
+	margin: 20px;
+	text-decoration: solid;
+}
+
+a {
+	text-decoration: none;
+}
+
+#wrapper {
+    height: 600px;
+    position: relative;
+}
+
+#dashboard-button {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+#auth-call-buttons {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.facebook-button, .google-button, .logout-button, .dashboard-button {
+    display: block;
+    margin: 10px;
+    padding: 15px;
+    width: 200px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: light-grey;
+    text-align: center;
+}

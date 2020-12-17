@@ -1,0 +1,71 @@
+ <!-- TODO: update CSS so that table is centered, 
+    there are spaces in between each element -->
+
+<html>
+    <head><meta charset="utf-8">
+        <title>{{ .title }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="/assets/css/transaction_history.css">
+        <script type="text/javascript" src="/assets/js/historyBundle.js"></script>
+    </head>
+    <body>
+        <div id id="wrapper">
+            <h1 class="font-weight-bold">{{ .title }}</h1>
+            <div id="GetBlockContainer">
+                <table id="get-blocks-table">
+                    
+                </table>
+            </div>
+
+            <div id="GetTransactionFromBlock">
+                <h2 class="font-weight-bold text-center">Transaction Finder</h2>
+                <!-- Create form that takes in hash, onsubmit outputs transaction from that hash -->
+                <form action="/transaction_history" id="getTransactionForm" method="POST" autocomplete="on">
+                    <%= csrf() %>
+                    <div class="form-group">
+                        <label for="BlockHash">Block Hash</label>
+                        <input type="text" class="form-control" id="BlockHash" name="BlockHash" aria-describedby="blockHashHelp" placeholder="0x">
+                        <small id="blockHashHelp" class="form-text text-muted">Find the Parent Hash above and enter to see transaction.</small>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="submit">
+                </form>
+                <div class="center">
+                    <table id="GetTransactionTable">
+                    <tr>
+                        <th class="table-header">Hash</th>
+                        <th class="table-header">Nonce</th>
+                        <th class="table-header">Block Hash</th>
+                        <th class="table-header">Block Number</th>
+                        <th class="table-header">Transaction Index</th>
+                        <th class="table-header">From</th>
+                        <th class="table-header">To</th>
+                        <th class="table-header">Value</th>
+                        <th class="table-header">Gas</th>
+                        <th class="table-header">Gas Price</th>
+                        <th class="table-header">Input</th>
+                    </tr>
+                    <tr>
+                        <td class="hash transaction-element"></td>
+                        <td class="nonce transaction-element"></td>
+                        <td class="transaction-from-block transaction-element"></td>
+                        <td class="block-number transaction-element"></td>
+                        <td class="transaction-index transaction-element"></td>
+                        <td class="from transaction-element"></td>
+                        <td class="to transaction-element"></td>
+                        <td class="value transaction-element"></td>
+                        <td class="gas transaction-element"></td>
+                        <td class="gas-price transaction-element"></td>
+                        <td class="input transaction-element"></td>
+                    </tr>
+                    </table>
+                </div>
+            </div> 
+            <div>
+                <a class="float-left" href='/auth'><button class="button">Log Out</button></a>
+            </div>
+        </div>
+    </body>
+</html>
