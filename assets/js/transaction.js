@@ -101,35 +101,24 @@ function provideValidatedDataTxObject(validatedData, txObject) {
 
       // Broadcast the transaction
       web3.eth.sendSignedTransaction(raw, (err, txHash) => {
-        var newHashValues = [];
         // var oldHashes = [];
 
         if (txHash){
           // Testing: console.log('txHash:', txHash)
           alert("Check transaction hash on Ethereum blockchain: " +  txHash);
-          newHashValues.push(txHash);
+          // TODO: prevent form from submitting on pageload
+          function SubmitForm(event) {
+            event.preventDefault();
 
-          // .update({transaction_hashes: JSON.stringify(newHashValues)}, ['id', 'transaction_hashes']);
-
-          // // If there is nothing saved at the start then save an empty array
-          // if(localStorage.getItem('data') == null) {
-          //   localStorage.setItem('data', '[]');
-          // }
-
-          // // Get old data and append it to the new data
-          // oldHashes = JSON.parse(localStorage.getItem('data'));
-          // oldHashes.push(newHashValues);
-
-          // // Save the old hashes and new hashes to local storage
-          // localStorage.setItem('data', JSON.stringify(oldHashes));
-
-          // // If there is data continue to display it
-          // if(localStorage.getItem('data') != null) {
-          //   // TODO: Prettyfy the input to html
-          //   // $('#transaction-hashes').html(localStorage.getItem('data'));
-          //   var txHashes= document.getElementById("transaction-hashes");
-          //   txHashes.innerHTML = localStorage.getItem('data').join(" , ");
-          // }
+            document.getElementById("txValueHidden").value = txHash;
+            formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});            document.getElementById("txHashForm").submit();
+            if (!formData) {
+              return false;
+            }
+            console.log("formData ", formData)
+            return formData;
+          };
+          SubmitForm()
         } 
       })
   }, function(err) {
