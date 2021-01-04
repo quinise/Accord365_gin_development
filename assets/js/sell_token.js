@@ -3,7 +3,7 @@
 
 App = {
   web3Provider: null,
-  providerUrl: 'ws://127.0.0.1:7545',
+  providerUrl: 'http://127.0.0.1:7545',
   contracts: {},
   account: '0x0',
   loading: false,
@@ -20,13 +20,13 @@ App = {
 
   // Sets blockchain provider and calls for contracts in the app to be inititated
   initWeb3: function() {
+    // If a web3 instance is already provided by Meta Mask.
      if (typeof web3 !== 'undefined') {
-       // If a web3 instance is already provided by Meta Mask.
-       App.web3Provider = web3.currentProvider;
-       web3 = new Web3(web3.currentProvider);
+      App.web3Provider = web3.currentProvider;
+      web3 = new Web3(web3.currentProvider);
      } else {
       // Specify default instance if no web3 instance provided
-      App.web3Provider = new Web3.providers.WebsocketProvider(App.providerUrl);
+      App.web3Provider = new Web3.providers.HttpProvider(App.providerUrl);
       web3 = new Web3(App.web3Provider);
      }
     return App.initContracts();

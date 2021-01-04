@@ -8,7 +8,7 @@ const stripHexPrefix = require('strip-hex-prefix');
 
 console.log("Bundle.js loaded");
 
-$(window).on('load', function() { 
+$(window).on('load', function() {  
   // ToDo: add value input, wait for wallet to be implemented so we can use tokens
   var validatedData = {
     transactionTitle: "",
@@ -28,13 +28,80 @@ $(window).on('load', function() {
     gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
     data: web3.utils.toHex("test"),
   };
-  
-  $('#newPaymentForm').on('submit', function(event) {
-    
+
+    $('#childSupportButton').on('click', function() {
+      $('#childSupport').toggle();
+    });
+
+    $('#probationButton').on('click', function() {
+      $('#probation').toggle();
+    });
+
+    $('#trafficFeesButton').on('click', function() {
+      $('#trafficFees').toggle();
+    });
+
+  $('#childSupportForm').on('submit', function(event) {
     event.preventDefault();
     
     function setFormData() {
-      formData = Array.from(document.querySelectorAll('#newPaymentForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+      formData = Array.from(document.querySelectorAll('#childSupportForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+
+      if (!formData) {
+        return false;
+      }
+
+      return formData;
+    }
+    
+    // TODO: initialize variable
+    dataToValidate = setFormData();
+    // Test: console.log("check for dataToValidate ", dataToValidate);
+    
+    validatedData = validateData(dataToValidate);
+    // Test: console.log("called validateData on dataToValidate ", validatedData);
+        
+    txObject = createTransactionObject(validatedData);
+    // Test: console.log("called createTransactionObject ", txObject);
+  
+    provideValidatedDataTxObject(validatedData, txObject);
+
+    return false;
+  });
+
+  $('#probationForm').on('submit', function(event) {
+    event.preventDefault();
+    
+    function setFormData() {
+      formData = Array.from(document.querySelectorAll('#probationForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+
+      if (!formData) {
+        return false;
+      }
+
+      return formData;
+    }
+    
+    // TODO: initialize variable
+    dataToValidate = setFormData();
+    // Test: console.log("check for dataToValidate ", dataToValidate);
+    
+    validatedData = validateData(dataToValidate);
+    // Test: console.log("called validateData on dataToValidate ", validatedData);
+        
+    txObject = createTransactionObject(validatedData);
+    // Test: console.log("called createTransactionObject ", txObject);
+  
+    provideValidatedDataTxObject(validatedData, txObject);
+
+    return false;
+  });
+
+  $('#trafficFeesForm').on('submit', function(event) {
+    event.preventDefault();
+    
+    function setFormData() {
+      formData = Array.from(document.querySelectorAll('#trafficFeesForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
 
       if (!formData) {
         return false;
@@ -105,23 +172,13 @@ function provideValidatedDataTxObject(validatedData, txObject) {
       web3.eth.sendSignedTransaction(raw, (err, txHash) => {
         // var oldHashes = [];
 
-        if (txHash){
+        if (txHash) {
           // Testing: console.log('txHash:', txHash)
           alert("Check transaction hash on Ethereum blockchain: " +  txHash);
-          // TODO: prevent form from submitting on pageload
-          function SubmitForm(event) {
-            event.preventDefault();
-
-            document.getElementById("txValueHidden").value = txHash;
-            formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});            document.getElementById("txHashForm").submit();
-            if (!formData) {
-              return false;
-            }
-            console.log("formData ", formData)
-            return formData;
-          };
-          SubmitForm()
-        } 
+        } else {
+          alert("Transaction failed!");
+          return false;
+        }
       })
   }, function(err) {
       console.log("Error ", err);
@@ -202,16 +259,6 @@ function validateData(dataToValidate) {
     alert("Invalid email");
     return false;
   }
-  
-  // //Phone number must be only numbers
-  // dataToValidate.phoneNumber = Number(dataToValidate.phoneNumber)
-  // var phoneRGEX = /^\d{10}$/;
-  // var phoneResult = phoneRGEX.test(dataToValidate.phoneNumber);
-  // if (phoneResult) {
-  //   var phoneNumberValidated = dataToValidate.phoneNumber;
-  // } else {
-  //    alert("phone:"+phoneResult );
-  // }
 
   validatedDataObj = {
     transactionTitle: transactionTitleValidated,
@@ -228,6 +275,8 @@ function validateData(dataToValidate) {
 
   return validatedData;
 }
+
+
 },{"buffer/":119,"ethereum-private-key-to-address":181,"ethereumjs-tx":215,"strip-hex-prefix":344,"web3":407}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
