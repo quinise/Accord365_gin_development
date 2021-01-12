@@ -129,9 +129,15 @@ func main() {
 		})
 	})
 
-	// Google LoginHandler handles the login procedure
 	router.GET("/signin", func(c *gin.Context) {
-		fmt.Println("in signin")
+		c.HTML(http.StatusOK, "signin.html", gin.H{
+			"title": "Accord365",
+		})
+	})
+
+	// Google LoginHandler handles the login procedure
+	router.GET("/signin_google", func(c *gin.Context) {
+		fmt.Println("in signin_google")
 
 		state, err := RandToken(32)
 		if err != nil {
@@ -207,7 +213,7 @@ func main() {
 			return
 		}
 
-		c.HTML(http.StatusOK, "dashboard.tmpl", gin.H{
+		c.HTML(http.StatusOK, "dashboard.html", gin.H{
 			"title":  "Dashboard",
 			"userId": session.Get("userId"),
 			"seen":   seen,
@@ -220,26 +226,37 @@ func main() {
 		authorized.GET("/dashboard", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
-			c.HTML(http.StatusOK, "dashboard.tmpl", gin.H{
+			c.HTML(http.StatusOK, "dashboard.html", gin.H{
 				"title": "Dashboard",
 				"user":  userID,
 			})
 		})
 
 		authorized.GET("/wallet_get", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "wallet.tmpl", gin.H{
 				"title": "Wallet",
+				"user":  userID,
 			})
 		})
 
 		authorized.POST("/wallet", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "wallet.tmpl", gin.H{
 				"title": "Wallet",
+				"user":  userID,
 			})
 
 		})
 
 		authorized.GET("/new_payment_get", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			fmt.Println("in new payment get")
 
 			// // Create a new user
@@ -249,10 +266,14 @@ func main() {
 			// Get input from the transaction (txHash)
 			c.HTML(http.StatusOK, "new_payment.tmpl", gin.H{
 				"title": "New Payment",
+				"user":  userID,
 			})
 		})
 
 		authorized.POST("/new_payment", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			var transaction string
 			transaction = c.PostForm("txValueHidden")
 			fmt.Printf("tx: %s\n;", transaction)
@@ -283,36 +304,57 @@ func main() {
 			c.HTML(http.StatusOK, "new_payment.tmpl", gin.H{
 				"title":                            "New Payment",
 				"splitDisplayTransactionHashesStr": splitDisplayTransactionHashesStr,
+				"user":                             userID,
 			})
 		})
 
 		authorized.GET("/transaction_get", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "transaction.tmpl", gin.H{
 				"title": "Transaction History",
+				"user":  userID,
 			})
 		})
 
 		authorized.POST("/transaction_history", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "transaction.tmpl", gin.H{
 				"title": "Transaction History",
+				"user":  userID,
 			})
 		})
 
 		authorized.GET("/new_contract_get", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "new_contract.html", gin.H{
 				"title": "New Contract",
+				"user":  userID,
 			})
 		})
 
 		authorized.POST("/new_contract", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "new_contract.html", gin.H{
 				"title": "New Contract",
+				"user":  userID,
 			})
 		})
 
 		authorized.GET("/payment_schedule", func(c *gin.Context) {
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+
 			c.HTML(http.StatusOK, "payment_schedule.tmpl", gin.H{
 				"title": "Payment Schedule",
+				"user":  userID,
 			})
 		})
 	}
