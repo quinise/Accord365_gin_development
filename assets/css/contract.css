@@ -2,6 +2,17 @@
   height: 600px;
 }
 
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li a {
+  display: block;
+  width: 80px;
+  background-color: #dddddd;
+}
 /* div {
   border:1px solid black;
   height: 200px;
@@ -12,7 +23,6 @@
 }
 
 .button, #childSupportButton, #probationButton, #trafficFeesButton {
-    display: block;
     margin-top: 25px;
     margin-bottom: 25px;
     padding: 15px;

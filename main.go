@@ -124,7 +124,7 @@ func main() {
 	router.GET("/index", func(c *gin.Context) {
 		fmt.Println("in index")
 
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title": "Accord365",
 		})
 	})
@@ -152,7 +152,7 @@ func main() {
 			return
 		}
 		link := getLoginURL(state)
-		c.HTML(http.StatusOK, "auth.tmpl", gin.H{
+		c.HTML(http.StatusOK, "auth.html", gin.H{
 			"link":  link,
 			"title": "Accord365",
 		})
@@ -236,7 +236,7 @@ func main() {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
 
-			c.HTML(http.StatusOK, "wallet.tmpl", gin.H{
+			c.HTML(http.StatusOK, "wallet.html", gin.H{
 				"title": "Wallet",
 				"user":  userID,
 			})
@@ -246,7 +246,7 @@ func main() {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
 
-			c.HTML(http.StatusOK, "wallet.tmpl", gin.H{
+			c.HTML(http.StatusOK, "wallet.html", gin.H{
 				"title": "Wallet",
 				"user":  userID,
 			})
@@ -264,7 +264,7 @@ func main() {
 			// result := db.Create(&u2)
 			// fmt.Println("Result ", result)
 			// Get input from the transaction (txHash)
-			c.HTML(http.StatusOK, "new_payment.tmpl", gin.H{
+			c.HTML(http.StatusOK, "new_payment.html", gin.H{
 				"title": "New Payment",
 				"user":  userID,
 			})
@@ -301,7 +301,7 @@ func main() {
 			c.Set("splitDisplayTransactionHashesStr", splitDisplayTransactionHashesStr)
 			fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
 
-			c.HTML(http.StatusOK, "new_payment.tmpl", gin.H{
+			c.HTML(http.StatusOK, "new_payment.html", gin.H{
 				"title":                            "New Payment",
 				"splitDisplayTransactionHashesStr": splitDisplayTransactionHashesStr,
 				"user":                             userID,
@@ -312,7 +312,7 @@ func main() {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
 
-			c.HTML(http.StatusOK, "transaction.tmpl", gin.H{
+			c.HTML(http.StatusOK, "transaction.html", gin.H{
 				"title": "Transaction History",
 				"user":  userID,
 			})
@@ -322,7 +322,7 @@ func main() {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
 
-			c.HTML(http.StatusOK, "transaction.tmpl", gin.H{
+			c.HTML(http.StatusOK, "transaction.html", gin.H{
 				"title": "Transaction History",
 				"user":  userID,
 			})
@@ -357,9 +357,15 @@ func main() {
 				"user":  userID,
 			})
 		})
-	}
 
-	//create a logout function
+		authorized.GET("/logout", func(c *gin.Context) {
+			session := sessions.Default(c)
+			session.Delete()
+			session.Clear()
+			session.Save()
+			c.Redirect(http.StatusFound, "/index")
+		})
+	}
 
 	// Listen and server on 0.0.0.0:8081
 	router.Run(":8081")

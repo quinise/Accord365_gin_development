@@ -13,6 +13,13 @@
 </head>
     <body>
         <div id=wrapper>
+          <ul class="nav flex-column">
+            <li><a class="nav-link" href="/auth/dashboard_get">Dashboard</a></li>
+            <li><a class="nav-link" href="/auth/new_payment_get">New Payment</a></li>
+            <li><a class="nav-link" href="/auth/transaction_get">Transaction History</a></li>
+            <li><a class="nav-link" href="/auth/new_contract_get">New Contract</a></li>
+            <li><a class="nav-link" href="/auth/logout">Log Out</a></li>
+          </ul>
             <h1 class="font-weight-bold">{{ .title }}</h1>
             <form action="/new_payment" id="newPaymentForm" method="POST" autocomplete="on">
                 <h3>Payment Initiator</h3>
@@ -784,7 +791,7 @@
                     <span id="transaction-hashes">{{ .splitDisplayTransactionHashesStr }}</span>
                   </div>
                   <div>
-                    <a href='/auth'><button class="button">Log Out</button></a>
+                    <a href='/auth/logout'><button class="button">Log Out</button></a>
                   </div>
         </div>
     </body>
