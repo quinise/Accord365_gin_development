@@ -13,6 +13,13 @@
     </head>
     <body>
         <div id id="wrapper">
+            <ul class="nav flex-column">
+                <li><a class="nav-link" href="/auth/dashboard_get">Dashboard</a></li>
+                <li><a class="nav-link" href="/auth/new_payment_get">New Payment</a></li>
+                <li><a class="nav-link" href="/auth/transaction_get">Transaction History</a></li>
+                <li><a class="nav-link" href="/auth/new_contract_get">New Contract</a></li>
+                <li><a class="nav-link" href="/auth/logout">Log Out</a></li>
+              </ul>
             <h1 class="font-weight-bold">{{ .title }}</h1>
             <div id="GetBlockContainer">
                 <table id="get-blocks-table">
@@ -64,7 +71,7 @@
                 </div>
             </div> 
             <div>
-                <a class="float-left" href='/auth'><button class="button">Log Out</button></a>
+                <a class="float-left" href='/auth/logout'><button class="button">Log Out</button></a>
             </div>
         </div>
     </body>

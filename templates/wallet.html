@@ -13,6 +13,13 @@
     </head>
     <body>
       <div class="wraper">
+        <ul class="nav flex-column">
+          <li><a class="nav-link" href="/auth/dashboard_get">Dashboard</a></li>
+          <li><a class="nav-link" href="/auth/new_payment_get">New Payment</a></li>
+          <li><a class="nav-link" href="/auth/transaction_get">Transaction History</a></li>
+          <li><a class="nav-link" href="/auth/new_contract_get">New Contract</a></li>
+          <li><a class="nav-link" href="/auth/logout">Log Out</a></li>
+        </ul>
       <h1>{{ .title }}</h1>
         <div class="row">
           <div class="portis-signin small-content col-4 col-sm-12">
@@ -57,7 +64,7 @@
         </div>
         </div> 
         <div id="logout-button" class="col-4 col-sm-12">
-          <a href='/auth'><button id="button" class="logout-button button">Log Out</button></a>
+          <a href='/auth/logout'><button id="button" class="logout-button button">Log Out</button></a>
         </div>
         </div>
       </div>
