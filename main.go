@@ -256,11 +256,13 @@ func main() {
 		authorized.GET("/new_payment_get", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
+			// splitDisplayTransactionHashesString := c.Get("splitDisplayTransactionHashesStr")
 
 			fmt.Println("in new payment get")
 
-			// // Create a new user
-			// u2 := User{ID: "3", Name: "Andrea Henderson", Provider: "mySite", ProviderID: "4"}
+			// TODO: create a new user upon first login
+			// Create a new user
+			// u2 := User{ID: "2", Name: "Jammal Hendrix", Provider: "mySite", ProviderID: "4"}
 			// result := db.Create(&u2)
 			// fmt.Println("Result ", result)
 			// Get input from the transaction (txHash)
@@ -271,40 +273,61 @@ func main() {
 		})
 
 		authorized.POST("/new_payment", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userID := session.Get("userId")
-
+			// TODO: update database to permit unlimited char/VAR for transaction_hashes, prevent page from duplicating data on refresh
 			var transaction string
 			transaction = c.PostForm("txValueHidden")
-			fmt.Printf("tx: %s\n;", transaction)
+			if len(transaction) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				fmt.Printf("tx: %s\n;", transaction)
+			}
 
 			var result string
-			db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
-			fmt.Printf("result: %s\n;", result)
+			if len(transaction) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(transaction) > 1 {
+				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
+				fmt.Printf("result: %s\n;", result)
+			}
 
 			var newTransactionString string
-			newTransactionString = (result + "," + transaction)
-			fmt.Printf("new tx string: %s\n;", newTransactionString)
-			db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			if result == "null" || len(result) < 1 {
+				newTransactionString = transaction
+				fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
+				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			} else if len(result) > 1 {
+				newTransactionString = (result + "," + transaction)
+				fmt.Printf("new tx string: %s\n;", newTransactionString)
+				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			}
+
+			var displayTransactionHashes string
+			var splitDisplayTransactionHashes []string
+			if len(newTransactionString) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(newTransactionString) > 1 {
+				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
+				fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
+				splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
+				fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
+			}
+
+			var splitDisplayTransactionHashesStr string
+			if len(displayTransactionHashes) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(displayTransactionHashes) > 1 {
+				splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
+				c.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
+				// fmt.Printf("splitDisplayTransactionHashesString %s\n", c.Get("splitDisplayTransactionHashesString"))
+				fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
+			}
 
 			db.AutoMigrate(&User{})
 			db.Save(&User{})
 
-			var displayTransactionHashes string
-			db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
-			fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
-			splitDisplayTransactionHashes := strings.Split(displayTransactionHashes, ",")
-			// TODO: Update the splitDisplayTransactions array to remove "[]"
-			fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
-
-			splitDisplayTransactionHashesStr := strings.Join(splitDisplayTransactionHashes, "\n")
-			c.Set("splitDisplayTransactionHashesStr", splitDisplayTransactionHashesStr)
-			fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
-
 			c.HTML(http.StatusOK, "new_payment.html", gin.H{
-				"title":                            "New Payment",
-				"splitDisplayTransactionHashesStr": splitDisplayTransactionHashesStr,
-				"user":                             userID,
+				"title":                               "New Payment",
+				"splitDisplayTransactionHashesString": splitDisplayTransactionHashesStr,
 			})
 		})
 
@@ -360,7 +383,7 @@ func main() {
 
 		authorized.GET("/logout", func(c *gin.Context) {
 			session := sessions.Default(c)
-			session.Delete()
+			session.Delete("userId")
 			session.Clear()
 			session.Save()
 			c.Redirect(http.StatusFound, "/index")
