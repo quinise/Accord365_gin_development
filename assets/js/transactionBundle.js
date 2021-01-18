@@ -17,13 +17,14 @@ $(window).on('load', function() {
     privateKey: "",
     fullName: "",
     email: "",
+    value: 0,
   }  
   
   var txObject = {
     nonce: '',
     from: validatedData.fromAddress,
     to: validatedData.toAddress,
-    value: web3.utils.toHex(web3.utils.toWei('.01', 'ether')),
+    value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
     gasLimit: web3.utils.toHex(50000),
     gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
     data: web3.utils.toHex("test"),
@@ -51,7 +52,8 @@ $(window).on('load', function() {
     // Test: console.log("called validateData on dataToValidate ", validatedData);
         
     txObject = createTransactionObject(validatedData);
-    // Test: console.log("called createTransactionObject ", txObject);
+     //Test: 
+     console.log("called createTransactionObject ", txObject);
   
     provideValidatedDataTxObject(validatedData, txObject);
 
@@ -79,7 +81,7 @@ function provideValidatedDataTxObject(validatedData, txObject) {
   noncePromise.then(function(result) {
       // Testing completed promimse
       // console.log(result);
-      // console.log("validatedData and txObject in noncePromise.then(function ", validatedData, txObject);
+      console.log("validatedData and txObject in noncePromise.then(function ", validatedData, txObject);
 
       if (!result) {
         console.log("no nonce to return");
@@ -106,17 +108,14 @@ function provideValidatedDataTxObject(validatedData, txObject) {
       // Broadcast the transaction
       web3.eth.sendSignedTransaction(raw, (err, txHash) => {
         if (txHash) {
-          $( "#transaction-hashes" ).html( '<p>"test1"<p>' );
           // Testing: console.log('txHash:', txHash)
           alert("Check transaction hash on Ethereum blockchain: " +  txHash);
-          // TODO: prevent form from submitting on pageload
           $(function() {
             $('#hash-container').load('../templates/new_payment.html #transaction-hashes', function() {
               if (!formData) {
               alert("no form data");
               return false;
             } else {
-              $( "#transaction-hashes" ).html( '<p>"test2"<p>' );
               document.getElementById("txValueHidden").value = txHash;
               formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});            
               document.getElementById("txHashForm").submit();
@@ -140,7 +139,7 @@ function createTransactionObject(validatedData) {
       nonce: '',
       from: validatedData.fromAddress,
       to: validatedData.toAddress,
-      value: web3.utils.toHex(web3.utils.toWei('.01', 'ether')),
+      value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
       gasLimit: web3.utils.toHex(50000),
       gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
       data: web3.utils.toHex("test")
@@ -208,6 +207,15 @@ function validateData(dataToValidate) {
     return false;
   }
   
+  var valueRGEX = /^\d{0,9}(?:[.]\d{0,9})?$/;
+  var valueResult = valueRGEX.test(dataToValidate.value);
+  if (valueResult) {
+    var valueValidated = dataToValidate.value;
+  } else {
+    alert("Invalid Ether value");
+    return false;
+  }
+
   // //Phone number must be only numbers
   // dataToValidate.phoneNumber = Number(dataToValidate.phoneNumber)
   // var phoneRGEX = /^\d{10}$/;
@@ -225,6 +233,7 @@ function validateData(dataToValidate) {
     privateKey: privateKeyValidated,
     fullName: fullNameValidated,
     email: emailValidated,
+    value: valueValidated,
   }
 
   validatedData = validatedDataObj
