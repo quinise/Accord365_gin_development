@@ -16,13 +16,14 @@ $(window).on('load', function() {
     privateKey: "",
     fullName: "",
     email: "",
+    value: 0,
   }  
   
   var txObject = {
     nonce: '',
     from: validatedData.fromAddress,
     to: validatedData.toAddress,
-    value: web3.utils.toHex(web3.utils.toWei('.01', 'ether')),
+    value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
     gasLimit: web3.utils.toHex(50000),
     gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
     data: web3.utils.toHex("test"),
@@ -191,7 +192,7 @@ function createTransactionObject(validatedData) {
       nonce: '',
       from: validatedData.fromAddress,
       to: validatedData.toAddress,
-      value: web3.utils.toHex(web3.utils.toWei('.01', 'ether')),
+      value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
       gasLimit: web3.utils.toHex(50000),
       gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
       data: web3.utils.toHex("test")
@@ -259,6 +260,15 @@ function validateData(dataToValidate) {
     return false;
   }
 
+  var valueRGEX = /^\d{0,9}(?:[.]\d{0,9})?$/;
+  var valueResult = valueRGEX.test(dataToValidate.value);
+  if (valueResult) {
+    var valueValidated = dataToValidate.value;
+  } else {
+    alert("Invalid Ether value");
+    return false;
+  }
+
   validatedDataObj = {
     transactionTitle: transactionTitleValidated,
     toAddress: toAddressValidated,
@@ -266,6 +276,7 @@ function validateData(dataToValidate) {
     privateKey: privateKeyValidated,
     fullName: fullNameValidated,
     email: emailValidated,
+    value: valueValidated,
   }
 
   validatedData = validatedDataObj
@@ -274,4 +285,3 @@ function validateData(dataToValidate) {
 
   return validatedData;
 }
-

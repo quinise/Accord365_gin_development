@@ -256,9 +256,17 @@ func main() {
 		authorized.GET("/new_payment_get", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
-			// splitDisplayTransactionHashesString := c.Get("splitDisplayTransactionHashesStr")
+
+			splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
+			if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
+				fmt.Println("Error: Issue with retrieving transaction string.")
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
+			}
 
 			fmt.Println("in new payment get")
+			fmt.Printf("splitDisplayTransactionHashesStr in new payment get %s\n", c.Value("splitDisplayTransactionHashesString"))
 
 			// TODO: create a new user upon first login
 			// Create a new user
@@ -267,13 +275,16 @@ func main() {
 			// fmt.Println("Result ", result)
 			// Get input from the transaction (txHash)
 			c.HTML(http.StatusOK, "new_payment.html", gin.H{
-				"title": "New Payment",
-				"user":  userID,
+				"title":                               "New Payment",
+				"user":                                userID,
+				"splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
 			})
 		})
 
 		authorized.POST("/new_payment", func(c *gin.Context) {
-			// TODO: update database to permit unlimited char/VAR for transaction_hashes, prevent page from duplicating data on refresh
+			session := sessions.Default(c)
+
+			// TODO: update database to permit unlimited char/VAR for transaction_hashes
 			var transaction string
 			transaction = c.PostForm("txValueHidden")
 			if len(transaction) < 1 {
@@ -317,18 +328,15 @@ func main() {
 				c.Redirect(http.StatusFound, "/auth/new_payment_get")
 			} else if len(displayTransactionHashes) > 1 {
 				splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
-				c.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
-				// fmt.Printf("splitDisplayTransactionHashesString %s\n", c.Get("splitDisplayTransactionHashesString"))
+				session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
+				session.Save()
 				fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
 			}
 
 			db.AutoMigrate(&User{})
 			db.Save(&User{})
 
-			c.HTML(http.StatusOK, "new_payment.html", gin.H{
-				"title":                               "New Payment",
-				"splitDisplayTransactionHashesString": splitDisplayTransactionHashesStr,
-			})
+			c.Redirect(http.StatusFound, "/auth/new_payment_get")
 		})
 
 		authorized.GET("/transaction_get", func(c *gin.Context) {

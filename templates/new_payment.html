@@ -20,6 +20,7 @@
             <li><a class="nav-link" href="/auth/logout">Log Out</a></li>
           </ul>
             <h1 class="font-weight-bold">{{ .title }}</h1>
+            <!-- TODO: clear these forms on submit -->
             <form action="/auth/new_payment" id="newPaymentForm" method="POST" autocomplete="on">
                 <h3>Payment Initiator</h3>
                 <div class="form-group">
@@ -47,6 +48,11 @@
                     <input type="email" class="form-control" id="Email" name="email" aria-describedby="emailHelp" placeholder="Enter email">
                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                   </div>
+                  <div class="form-group">
+                    <label for="value">Ethereum Value</label>
+                    <input type="text" class="form-control" id="value" name="value" aria-describedby="valueHelp" placeholder="0 Eth">
+                    <small id="valueHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
                   <div class="form-group">
                     <label for="BusinessFEINNumber">Business FEIN Number</label>
                     <input type="text" class="form-control" id="FeinNumber" name="feinNumber" aria-describedby="feinlHelp" placeholder="FEIN Number">
