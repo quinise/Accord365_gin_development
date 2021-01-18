@@ -38,9 +38,9 @@ $(window).on('load', function() {
 
       if (!formData) {
         return false;
+      } else {
+        return formData;
       }
-
-      return formData;
     }
     
     // TODO: initialize variable
@@ -54,6 +54,8 @@ $(window).on('load', function() {
     // Test: console.log("called createTransactionObject ", txObject);
   
     provideValidatedDataTxObject(validatedData, txObject);
+
+    document.getElementById("newPaymentForm").reset();
 
     return false;
   });
@@ -103,25 +105,28 @@ function provideValidatedDataTxObject(validatedData, txObject) {
 
       // Broadcast the transaction
       web3.eth.sendSignedTransaction(raw, (err, txHash) => {
-        // var oldHashes = [];
-
-        if (txHash){
+        if (txHash) {
+          $( "#transaction-hashes" ).html( '<p>"test1"<p>' );
           // Testing: console.log('txHash:', txHash)
           alert("Check transaction hash on Ethereum blockchain: " +  txHash);
           // TODO: prevent form from submitting on pageload
-          function SubmitForm(event) {
-            event.preventDefault();
-
-            document.getElementById("txValueHidden").value = txHash;
-            formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});            document.getElementById("txHashForm").submit();
-            if (!formData) {
+          $(function() {
+            $('#hash-container').load('../templates/new_payment.html #transaction-hashes', function() {
+              if (!formData) {
+              alert("no form data");
               return false;
+            } else {
+              $( "#transaction-hashes" ).html( '<p>"test2"<p>' );
+              document.getElementById("txValueHidden").value = txHash;
+              formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});            
+              document.getElementById("txHashForm").submit();
+              document.getElementById("txValueHidden").value = "";
+              console.log("formData ", formData);
+              return formData;
             }
-            console.log("formData ", formData)
-            return formData;
-          };
-          SubmitForm()
-        } 
+          });
+        }); 
+        }
       })
   }, function(err) {
       console.log("Error ", err);
