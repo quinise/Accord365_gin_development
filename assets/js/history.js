@@ -7,7 +7,6 @@ $(window).on('load', function() {
   function getTenBlocks () {
     var blockArray = [];
     // get latest 10 blocks
-    // TODO: Does client really want this feature?
     web3.eth.getBlockNumber().then((latest) => {
       for (let i = 0; i < 10; i++) {
         web3.eth.getBlock(latest - i).then(function(blockNumber) {

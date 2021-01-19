@@ -30,8 +30,9 @@ var err error
 // User is used to map your users database table to your go code.
 type User struct {
 	gorm.Model
-	ID                string    `json:"id" db:"id"`
+	ID                int       `json:"id" db:"id" gorm:"primaryKey;autoIncrement:true"`
 	Name              string    `json:"name" db:"name"`
+	Email             string    `json:"email" db:"email"`
 	Provider          string    `json:"provider" db:"provider"`
 	ProviderID        string    `json:"provider_id" db:"provider_id"`
 	TransactionHashes string    `form:"transaction_hashes" json:"transaction_hashes" db:"transaction_hashes"`
@@ -90,7 +91,7 @@ func init() {
 		ClientSecret: cred.Csecret,
 		RedirectURL:  "http://127.0.0.1:8081/auth_google",
 		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email", // You have to select your own scope from here -> https://developers.google.com/identity/protocols/googlescopes#google_sign-in
+			"https://www.googleapis.com/auth/userinfo.profile", // You have to select your own scope from here -> https://developers.google.com/identity/protocols/googlescopes#google_sign-in
 		},
 		Endpoint: google.Endpoint,
 	}
@@ -195,10 +196,25 @@ func main() {
 			c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error marshalling response. Please try agian."})
 			return
 		}
-		session.Set("userId", u.Email)
+
+		// Save unique id / email to session
+		session.Set("userId", u.Sub)
 		err = session.Save()
-		log.Println("SessionUsers", u)
-		log.Println("Session", session.Get("userId"))
+		// log.Println("SessionUser", u)
+		// log.Println("Session", session.Get("userId"))
+		userID := session.Get("userId")
+
+		// query database for u.Email/userID
+		idResult := User{}
+		emptyUser := User{}
+		db.Where("email = ?", userID).First(&idResult)
+		if idResult == emptyUser {
+			// fmt.Println("idResult ", idResult)
+			user := User{Name: "A. Person", Provider: "google", ProviderID: "3", Email: userID.(string)}
+			result := db.Create(&user)
+
+			// fmt.Println("create user Result ", result)
+		}
 
 		if err != nil {
 			log.Println(err)
@@ -206,7 +222,7 @@ func main() {
 			return
 		}
 		seen := false
-		if session.Get("userId") == u.Email {
+		if session.Get("userId") == u.Sub {
 			seen = true
 		} else {
 			c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving user. Please try again."})
@@ -265,15 +281,6 @@ func main() {
 				fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
 			}
 
-			fmt.Println("in new payment get")
-			fmt.Printf("splitDisplayTransactionHashesStr in new payment get %s\n", c.Value("splitDisplayTransactionHashesString"))
-
-			// TODO: create a new user upon first login
-			// Create a new user
-			// u2 := User{ID: "2", Name: "Jammal Hendrix", Provider: "mySite", ProviderID: "4"}
-			// result := db.Create(&u2)
-			// fmt.Println("Result ", result)
-			// Get input from the transaction (txHash)
 			c.HTML(http.StatusOK, "new_payment.html", gin.H{
 				"title":                               "New Payment",
 				"user":                                userID,
@@ -284,7 +291,7 @@ func main() {
 		authorized.POST("/new_payment", func(c *gin.Context) {
 			session := sessions.Default(c)
 
-			// TODO: update database to permit unlimited char/VAR for transaction_hashes
+			// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
 			var transaction string
 			transaction = c.PostForm("txValueHidden")
 			if len(transaction) < 1 {

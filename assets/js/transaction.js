@@ -8,7 +8,6 @@ const stripHexPrefix = require('strip-hex-prefix');
 console.log("Bundle.js loaded");
 
 $(window).on('load', function() { 
-  // ToDo: add value input, wait for wallet to be implemented so we can use tokens
   var validatedData = {
     transactionTitle: "",
     toAddress: "",
@@ -43,7 +42,6 @@ $(window).on('load', function() {
       }
     }
     
-    // TODO: initialize variable
     dataToValidate = setFormData();
     // Test: console.log("check for dataToValidate ", dataToValidate);
     
@@ -132,7 +130,6 @@ function provideValidatedDataTxObject(validatedData, txObject) {
 }
   
 function createTransactionObject(validatedData) {
-  // TODO: initialize variable  
   txObjectCreate = {
       nonce: '',
       from: validatedData.fromAddress,

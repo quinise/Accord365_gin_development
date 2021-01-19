@@ -67,6 +67,7 @@ $(window).on('load', function() {
   
     provideValidatedDataTxObject(validatedData, txObject);
 
+    document.getElementById("childSupportForm").reset();
     return false;
   });
 
@@ -95,6 +96,7 @@ $(window).on('load', function() {
   
     provideValidatedDataTxObject(validatedData, txObject);
 
+    document.getElementById("probationForm").reset();
     return false;
   });
 
@@ -123,6 +125,7 @@ $(window).on('load', function() {
   
     provideValidatedDataTxObject(validatedData, txObject);
 
+    document.getElementById("trafficFeesForm").reset();
     return false;
   });
 
