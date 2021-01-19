@@ -1,4 +1,4 @@
-<!-- TODO: add cancel buttons to each form, add headers to each form, add spacing inbetween form elements, style submit buttons-->
+<!-- TODO: add spacing inbetween form elements, style submit buttons-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +26,7 @@
         <div id="content-container" class="col">
           <div id="childSupport" class="initiallyHidden">
             <form action='/new_contract' id='childSupportForm' method='POST' autocomplete='on'>
+              <h3>Child Support Form</h3>
               <div class='form-group'>
                 <label for='ToAddress'>To Address</label>
                 <input type='text' class='form-control' id='ToAddress' name='toAddress' aria-describedby='toAddresslHelp' placeholder='0x'>
@@ -57,6 +58,7 @@
 
           <div id="probation" class="initiallyHidden">
             <form action='/new_contract' id='probationForm' method='POST' autocomplete='on'>
+              <h3>Probation Form</h3>
               <div class='form-group'>
                 <label for='ToAddress'>To Address</label>
                 <input type='text' class='form-control' id='ToAddress' name='toAddress' aria-describedby='toAddresslHelp' placeholder='0x'>
@@ -88,6 +90,7 @@
 
           <div id="trafficFees" class="initiallyHidden">
             <form action='/new_contract' id='trafficFeesForm' method='POST' autocomplete='on'>
+              <h3>Traffic Fees Form</h3>
               <div class='form-group'>
                 <label for='ToAddress'>To Address</label>
                 <input type='text' class='form-control' id='ToAddress' name='toAddress' aria-describedby='toAddresslHelp' placeholder='0x'>

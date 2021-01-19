@@ -22,7 +22,7 @@ li a {
   display: none; 
 }
 
-.button, #childSupportButton, #probationButton, #trafficFeesButton {
+.button, .btn, #childSupportButton, #probationButton, #trafficFeesButton {
     margin-top: 25px;
     margin-bottom: 25px;
     padding: 15px;
