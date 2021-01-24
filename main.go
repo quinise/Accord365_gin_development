@@ -199,21 +199,25 @@ func main() {
 
 		// Save unique id / email to session
 		session.Set("userId", u.Sub)
+		session.Set("userGivenName", u.GivenName)
+		session.Set("userFamilyName", u.FamilyName)
 		err = session.Save()
-		// log.Println("SessionUser", u)
-		// log.Println("Session", session.Get("userId"))
+
 		userID := session.Get("userId")
+		userGivenName := session.Get("userGivenName")
+		userFamilyName := session.Get("userFamilyName")
 
 		// query database for u.Email/userID
 		idResult := User{}
 		emptyUser := User{}
+		// ToDo (production): instead of email call it identification string db field must be unique
 		db.Where("email = ?", userID).First(&idResult)
 		if idResult == emptyUser {
 			// fmt.Println("idResult ", idResult)
-			user := User{Name: "A. Person", Provider: "google", ProviderID: "3", Email: userID.(string)}
+			user := User{Name: userGivenName.(string) + " " + userFamilyName.(string), Provider: "google", ProviderID: "3", Email: userID.(string)}
 			result := db.Create(&user)
 
-			// fmt.Println("create user Result ", result)
+			fmt.Println("create user Result ", result)
 		}
 
 		if err != nil {

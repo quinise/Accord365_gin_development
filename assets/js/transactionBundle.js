@@ -43,7 +43,6 @@ $(window).on('load', function() {
       }
     }
     
-    // TODO: initialize variable
     dataToValidate = setFormData();
     // Test: console.log("check for dataToValidate ", dataToValidate);
     
@@ -133,7 +132,6 @@ function provideValidatedDataTxObject(validatedData, txObject) {
 }
   
 function createTransactionObject(validatedData) {
-  // TODO: initialize variable  
   txObjectCreate = {
       nonce: '',
       from: validatedData.fromAddress,
