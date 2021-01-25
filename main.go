@@ -12,10 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/contrib/sessions"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 
 	"github.com/accord365/middleware"
 	"github.com/gin-gonic/gin"
+	csrf "github.com/utrack/gin-csrf"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -106,19 +108,23 @@ func main() {
 	}
 
 	router := gin.Default()
-
 	token, err := RandToken(64)
 	if err != nil {
 		log.Fatal("unable to generate random token: ", err)
 	}
-	store := sessions.NewCookieStore([]byte(token))
-	store.Options(sessions.Options{
-		Path:   "/",
-		MaxAge: 86400 * 7,
-	})
+	store := cookie.NewStore([]byte(token))
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(sessions.Sessions("goquestsession", store))
+	router.Use(sessions.Sessions("mysession", store))
+	router.Use(csrf.Middleware(csrf.Options{
+		Secret: "dSgVkYp3s6v9y$B&E)H+MbQeThWmZq4t",
+		ErrorFunc: func(c *gin.Context) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "CSRF token mismatch",
+			})
+			c.Abort()
+		},
+	}))
 	router.Static("/assets", "./assets")
 	router.LoadHTMLGlob("templates/*")
 
@@ -263,14 +269,8 @@ func main() {
 		})
 
 		authorized.POST("/wallet", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userID := session.Get("userId")
 
-			c.HTML(http.StatusOK, "wallet.html", gin.H{
-				"title": "Wallet",
-				"user":  userID,
-			})
-
+			c.Redirect(http.StatusFound, "/auth/wallet_get")
 		})
 
 		authorized.GET("/new_payment_get", func(c *gin.Context) {
@@ -286,6 +286,7 @@ func main() {
 			}
 
 			c.HTML(http.StatusOK, "new_payment.html", gin.H{
+				"csrfFieldPtokenayment":               csrf.GetToken(c),
 				"title":                               "New Payment",
 				"user":                                userID,
 				"splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
@@ -355,19 +356,14 @@ func main() {
 			userID := session.Get("userId")
 
 			c.HTML(http.StatusOK, "transaction.html", gin.H{
-				"title": "Transaction History",
-				"user":  userID,
+				"csrfFieldTransaction": csrf.GetToken(c),
+				"title":                "Transaction History",
+				"user":                 userID,
 			})
 		})
 
 		authorized.POST("/transaction_history", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userID := session.Get("userId")
-
-			c.HTML(http.StatusOK, "transaction.html", gin.H{
-				"title": "Transaction History",
-				"user":  userID,
-			})
+			c.Redirect(http.StatusFound, "/auth/transaction_get")
 		})
 
 		authorized.GET("/new_contract_get", func(c *gin.Context) {
@@ -375,34 +371,25 @@ func main() {
 			userID := session.Get("userId")
 
 			c.HTML(http.StatusOK, "new_contract.html", gin.H{
-				"title": "New Contract",
-				"user":  userID,
+				"csrfFieldChild":     csrf.GetToken(c),
+				"csrfFieldProbation": csrf.GetToken(c),
+				"csrfFieldTraffic":   csrf.GetToken(c),
+				"title":              "New Contract",
+				"user":               userID,
 			})
 		})
 
 		authorized.POST("/new_contract", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userID := session.Get("userId")
-
-			c.HTML(http.StatusOK, "new_contract.html", gin.H{
-				"title": "New Contract",
-				"user":  userID,
-			})
-		})
-
-		authorized.GET("/payment_schedule", func(c *gin.Context) {
-			session := sessions.Default(c)
-			userID := session.Get("userId")
-
-			c.HTML(http.StatusOK, "payment_schedule.tmpl", gin.H{
-				"title": "Payment Schedule",
-				"user":  userID,
-			})
+			c.Redirect(http.StatusFound, "/auth/new_contract_get")
 		})
 
 		authorized.GET("/logout", func(c *gin.Context) {
 			session := sessions.Default(c)
 			session.Delete("userId")
+			session.Delete("splitDisplayTransactionHashesString")
+			session.Delete("userGivenName")
+			session.Delete("userFamilyName")
+			session.Delete("state")
 			session.Clear()
 			session.Save()
 			c.Redirect(http.StatusFound, "/index")

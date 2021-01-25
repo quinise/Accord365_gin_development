@@ -21,7 +21,9 @@
             <li><a class="nav-link" href="/auth/logout">Log Out</a></li>
           </ul>
             <h1 class="font-weight-bold">{{ .title }}</h1>
-            <form action="/auth/new_payment" id="newPaymentForm" method="POST" autocomplete="on">
+            <div id="newPaymentFormDiv">
+            <form action="/new_payment" id="newPaymentForm" method="POST" autocomplete="on" accept-charset="utf-8">
+                <input type="hidden" name="csrf_token_payment" value="{{ .csrfFieldPtokenayment }}">
                 <h3>Payment Initiator</h3>
                 <div class="form-group">
                     <label for="TransactionTitle">Transaction Title</label>
@@ -788,8 +790,9 @@
                       <div id="paymentInfo"></div>
                       <input type="submit" class="btn btn-primary" value="submit"/>
                   </form>
+                  </div>
                   <div id="hash-container">
-                    <form action="/auth/new_payment" id="txHashForm" method="POST">
+                    <form action="/new_payment" id="txHashForm" method="POST">
                        <input type="hidden" id="txValueHidden" name="txValueHidden" value="">
                     </form>
                     <h1 class="font-weight-bold">Transaction Hashes</h1>
