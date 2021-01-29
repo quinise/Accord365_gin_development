@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -113,20 +112,19 @@ func main() {
 		log.Fatal("unable to generate random token: ", err)
 	}
 	store := cookie.NewStore([]byte(token))
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-	router.Use(sessions.Sessions("mysession", store))
-	router.Use(csrf.Middleware(csrf.Options{
-		Secret: "dSgVkYp3s6v9y$B&E)H+MbQeThWmZq4t",
-		ErrorFunc: func(c *gin.Context) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "CSRF token mismatch",
-			})
-			c.Abort()
-		},
-	}))
+	store.Options(sessions.Options{
+		Path:   "/",
+		MaxAge: 86400 * 7,
+	})
+	router.Use(sessions.Sessions("accord365Session", store))
 	router.Static("/assets", "./assets")
 	router.LoadHTMLGlob("templates/*")
+
+	router.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "not_found.html", gin.H{
+			"title": "Page not found",
+		})
+	})
 
 	router.GET("/index", func(c *gin.Context) {
 		fmt.Println("in index")
@@ -247,6 +245,13 @@ func main() {
 	})
 
 	authorized := router.Group("/auth")
+	authorized.Use(csrf.Middleware(csrf.Options{
+		Secret: "dSgVkYp3s6v9y$B&E)H+MbQeThWmZq4t",
+		ErrorFunc: func(c *gin.Context) {
+			c.String(400, "CSRF token mismatch")
+			c.Abort()
+		},
+	}))
 	authorized.Use(middleware.AuthorizeRequest())
 	{
 		authorized.GET("/dashboard", func(c *gin.Context) {
@@ -273,90 +278,140 @@ func main() {
 			c.Redirect(http.StatusFound, "/auth/wallet_get")
 		})
 
+		authorized.POST("/new-payment", func(c *gin.Context) {
+			fmt.Println("%%%%c.Request POST", c.Request)
+
+			c.Redirect(http.StatusFound, "/index")
+		})
+
+		// authorized.GET("/new-payment", func(c *gin.Context) {
+		// 	c.Redirect(http.StatusTemporaryRedirect, "http://www.google.com")
+		// })
+
 		authorized.GET("/new_payment_get", func(c *gin.Context) {
+			fmt.Println("%%%%c.Request GET", c.Request)
+
+			// if f, ok :=  (http.Flusher); ok {
+			// 	f.Flush()
+			//  } else {
+			// 	log.Println("Damn, no flush");
+			//  }
+
 			session := sessions.Default(c)
 			userID := session.Get("userId")
+			session.Delete("_csrf")
+			session.Set("_csrf", csrf.GetToken(c))
+			session.Save()
+			_csrf := session.Get("_csrf")
 
-			splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
-			if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
-				fmt.Println("Error: Issue with retrieving transaction string.")
+			// splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
+			// if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
+			// 	fmt.Println("Error: Issue with retrieving transaction string.")
+			// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			// } else {
+			// 	fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
+			// }
+
+			// Set http request header if csrf token is ok
+			if _csrf, ok := session.Get("_csrf").(string); !ok {
+				fmt.Println("@@@@@Find Request header FAILED", c.Request.Header.Values("X-CSRF-Token"))
 				c.Redirect(http.StatusFound, "/auth/new_payment_get")
 			} else {
-				fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
+				c.Request.Header.Set("X-CSRF-Token", _csrf)
+				fmt.Println("@@@@@Request header SUCCESS", c.Request.Header.Values("X-CSRF-Token"))
 			}
 
-			c.HTML(http.StatusOK, "new_payment.html", gin.H{
-				"csrfFieldPtokenayment":               csrf.GetToken(c),
-				"title":                               "New Payment",
-				"user":                                userID,
-				"splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
-			})
+			header := c.Request.Header.Values("X-CSRF-Token")
+			// compare csfr token to header
+			if _csrf != header[0] {
+				fmt.Println("***csrf tokens don't match!*** " + _csrf.(string) + " " + header[0])
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if _csrf == header[0] {
+				fmt.Println("***csrf tokens match!***")
+
+				c.HTML(http.StatusOK, "new_payment.html", gin.H{
+					"_csrf": _csrf,
+					"title": "New Payment",
+					"user":  userID,
+					// "splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
+				})
+
+			}
+
 		})
 
-		authorized.POST("/new_payment", func(c *gin.Context) {
-			session := sessions.Default(c)
+		// authorized.POST("/new-payment", func(c *gin.Context) {
+		// 	fmt.Println("%%%%c.Request POST", c.Request)
 
-			// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
-			var transaction string
-			transaction = c.PostForm("txValueHidden")
-			if len(transaction) < 1 {
-				c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			} else {
-				fmt.Printf("tx: %s\n;", transaction)
-			}
+		// 	c.Redirect(http.StatusTemporaryRedirect, "http://www.google.com")
 
-			var result string
-			if len(transaction) < 1 {
-				c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			} else if len(transaction) > 1 {
-				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
-				fmt.Printf("result: %s\n;", result)
-			}
+		// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
+		// var transaction string
+		// transaction = c.PostForm("txValueHidden")
+		// if len(transaction) < 1 {
+		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
+		// } else {
+		// 	fmt.Printf("tx: %s\n;", transaction)
+		// }
 
-			var newTransactionString string
-			if result == "null" || len(result) < 1 {
-				newTransactionString = transaction
-				fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
-				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
-			} else if len(result) > 1 {
-				newTransactionString = (result + "," + transaction)
-				fmt.Printf("new tx string: %s\n;", newTransactionString)
-				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
-			}
+		// var result string
+		// if len(transaction) < 1 {
+		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
+		// } else if len(transaction) > 1 {
+		// 	db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
+		// 	fmt.Printf("result: %s\n;", result)
+		// }
 
-			var displayTransactionHashes string
-			var splitDisplayTransactionHashes []string
-			if len(newTransactionString) < 1 {
-				c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			} else if len(newTransactionString) > 1 {
-				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
-				fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
-				splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
-				fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
-			}
+		// var newTransactionString string
+		// if result == "null" || len(result) < 1 {
+		// 	newTransactionString = transaction
+		// 	fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
+		// 	db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+		// } else if len(result) > 1 {
+		// 	newTransactionString = (result + "," + transaction)
+		// 	fmt.Printf("new tx string: %s\n;", newTransactionString)
+		// 	db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+		// }
 
-			var splitDisplayTransactionHashesStr string
-			if len(displayTransactionHashes) < 1 {
-				c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			} else if len(displayTransactionHashes) > 1 {
-				splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
-				session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
-				session.Save()
-				fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
-			}
+		// var displayTransactionHashes string
+		// var splitDisplayTransactionHashes []string
+		// if len(newTransactionString) < 1 {
+		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
+		// } else if len(newTransactionString) > 1 {
+		// 	db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
+		// 	fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
+		// 	splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
+		// 	fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
+		// }
 
-			db.AutoMigrate(&User{})
-			db.Save(&User{})
+		// session := sessions.Default(c)
+		// var splitDisplayTransactionHashesStr string
+		// if len(displayTransactionHashes) < 1 {
+		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
+		// } else if len(displayTransactionHashes) > 1 {
+		// 	splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
+		// 	session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
+		// 	session.Save()
+		// 	fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
+		// }
 
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		})
+		// if len(splitDisplayTransactionHashesStr) > 1 {
+		// 	db.AutoMigrate(&User{})
+		// 	db.Save(&User{})
+		// 	c.Redirect(http.StatusFound, "/index")
+		// } else if len(splitDisplayTransactionHashesStr) < 1 {
+		// 	c.Redirect(http.StatusFound, "/auth/dasboard")
+		// }
+		// })
 
 		authorized.GET("/transaction_get", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
+			session.Set("csrfFieldTransaction", csrf.GetToken(c))
+			csrfFieldTransaction := session.Get("csrfFieldTransaction")
 
 			c.HTML(http.StatusOK, "transaction.html", gin.H{
-				"csrfFieldTransaction": csrf.GetToken(c),
+				"csrfFieldTransaction": csrfFieldTransaction,
 				"title":                "Transaction History",
 				"user":                 userID,
 			})
@@ -385,11 +440,6 @@ func main() {
 
 		authorized.GET("/logout", func(c *gin.Context) {
 			session := sessions.Default(c)
-			session.Delete("userId")
-			session.Delete("splitDisplayTransactionHashesString")
-			session.Delete("userGivenName")
-			session.Delete("userFamilyName")
-			session.Delete("state")
 			session.Clear()
 			session.Save()
 			c.Redirect(http.StatusFound, "/index")
