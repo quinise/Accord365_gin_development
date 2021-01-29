@@ -108,6 +108,8 @@ function provideValidatedDataTxObject(validatedData, txObject) {
           alert("Check transaction hash on Ethereum blockchain: " +  txHash);
           $(function() {
             $('#hash-container').load('../templates/new_payment.html #transaction-hashes', function() {
+              formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+
               if (!formData) {
               alert("no form data");
               return false;

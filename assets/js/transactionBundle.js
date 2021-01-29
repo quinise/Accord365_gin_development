@@ -50,8 +50,7 @@ $(window).on('load', function() {
     // Test: console.log("called validateData on dataToValidate ", validatedData);
         
     txObject = createTransactionObject(validatedData);
-     //Test: 
-     console.log("called createTransactionObject ", txObject);
+     //Test: console.log("called createTransactionObject ", txObject);
   
     provideValidatedDataTxObject(validatedData, txObject);
 
@@ -79,7 +78,7 @@ function provideValidatedDataTxObject(validatedData, txObject) {
   noncePromise.then(function(result) {
       // Testing completed promimse
       // console.log(result);
-      console.log("validatedData and txObject in noncePromise.then(function ", validatedData, txObject);
+      // console.log("validatedData and txObject in noncePromise.then(function ", validatedData, txObject);
 
       if (!result) {
         console.log("no nonce to return");
@@ -110,6 +109,8 @@ function provideValidatedDataTxObject(validatedData, txObject) {
           alert("Check transaction hash on Ethereum blockchain: " +  txHash);
           $(function() {
             $('#hash-container').load('../templates/new_payment.html #transaction-hashes', function() {
+              formData = Array.from(document.querySelectorAll('#txHashForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+
               if (!formData) {
               alert("no form data");
               return false;

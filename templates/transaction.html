@@ -28,7 +28,7 @@
                 <h2 class="font-weight-bold text-center">Transaction Finder</h2>
                 <!-- TODO: Add csrf tokens to forms -->
                 <form action="/transaction_history" id="getTransactionForm" method="POST" autocomplete="on">
-                    <%= csrf() %>
+                    <input type="hidden" name="csrf_token_transaction" value="{{ .csrfFieldTransaction }}">
                     <div class="form-group">
                         <label for="BlockHash">Block Hash</label>
                         <input type="text" class="form-control" id="BlockHash" name="BlockHash" aria-describedby="blockHashHelp" placeholder="0x">

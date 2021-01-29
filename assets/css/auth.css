@@ -1,0 +1,8 @@
+button {
+    display: block;
+    margin: 10px;
+    width: 150px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: light-grey;
+}

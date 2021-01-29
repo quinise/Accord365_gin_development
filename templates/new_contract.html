@@ -26,6 +26,7 @@
         <div id="content-container" class="col">
           <div id="childSupport" class="initiallyHidden">
             <form action='/new_contract' id='childSupportForm' method='POST' autocomplete='on'>
+              <input type="hidden" name="csrf_token_child" value="{{ .csrfFieldChild }}">
               <h3>Child Support Form</h3>
               <div class='form-group'>
                 <label for='ToAddress'>To Address</label>
@@ -58,6 +59,7 @@
 
           <div id="probation" class="initiallyHidden">
             <form action='/new_contract' id='probationForm' method='POST' autocomplete='on'>
+              <input type="hidden" name="csrf_token_probation" value="{{ .csrfFieldProbation }}">
               <h3>Probation Form</h3>
               <div class='form-group'>
                 <label for='ToAddress'>To Address</label>
@@ -90,6 +92,7 @@
 
           <div id="trafficFees" class="initiallyHidden">
             <form action='/new_contract' id='trafficFeesForm' method='POST' autocomplete='on'>
+              <input type="hidden" name="csrf_token_traffic" value="{{ .csrfFieldTraffic }}">
               <h3>Traffic Fees Form</h3>
               <div class='form-group'>
                 <label for='ToAddress'>To Address</label>
