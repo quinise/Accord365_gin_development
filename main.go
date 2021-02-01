@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -278,24 +279,8 @@ func main() {
 			c.Redirect(http.StatusFound, "/auth/wallet_get")
 		})
 
-		authorized.POST("/new-payment", func(c *gin.Context) {
-			fmt.Println("%%%%c.Request POST", c.Request)
-
-			c.Redirect(http.StatusFound, "/index")
-		})
-
-		// authorized.GET("/new-payment", func(c *gin.Context) {
-		// 	c.Redirect(http.StatusTemporaryRedirect, "http://www.google.com")
-		// })
-
 		authorized.GET("/new_payment_get", func(c *gin.Context) {
 			fmt.Println("%%%%c.Request GET", c.Request)
-
-			// if f, ok :=  (http.Flusher); ok {
-			// 	f.Flush()
-			//  } else {
-			// 	log.Println("Damn, no flush");
-			//  }
 
 			session := sessions.Default(c)
 			userID := session.Get("userId")
@@ -340,69 +325,65 @@ func main() {
 
 		})
 
-		// authorized.POST("/new-payment", func(c *gin.Context) {
-		// 	fmt.Println("%%%%c.Request POST", c.Request)
+		authorized.POST("/new-payment", func(c *gin.Context) {
+			// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
+			var transaction string
+			transaction = c.PostForm("txValueHidden")
+			if len(transaction) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				fmt.Printf("tx: %s\n;", transaction)
+			}
 
-		// 	c.Redirect(http.StatusTemporaryRedirect, "http://www.google.com")
+			var result string
+			if len(transaction) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(transaction) > 1 {
+				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
+				fmt.Printf("result: %s\n;", result)
+			}
 
-		// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
-		// var transaction string
-		// transaction = c.PostForm("txValueHidden")
-		// if len(transaction) < 1 {
-		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		// } else {
-		// 	fmt.Printf("tx: %s\n;", transaction)
-		// }
+			var newTransactionString string
+			if result == "null" || len(result) < 1 {
+				newTransactionString = transaction
+				fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
+				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			} else if len(result) > 1 {
+				newTransactionString = (result + "," + transaction)
+				fmt.Printf("new tx string: %s\n;", newTransactionString)
+				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			}
 
-		// var result string
-		// if len(transaction) < 1 {
-		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		// } else if len(transaction) > 1 {
-		// 	db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
-		// 	fmt.Printf("result: %s\n;", result)
-		// }
+			var displayTransactionHashes string
+			var splitDisplayTransactionHashes []string
+			if len(newTransactionString) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(newTransactionString) > 1 {
+				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
+				fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
+				splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
+				fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
+			}
 
-		// var newTransactionString string
-		// if result == "null" || len(result) < 1 {
-		// 	newTransactionString = transaction
-		// 	fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
-		// 	db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
-		// } else if len(result) > 1 {
-		// 	newTransactionString = (result + "," + transaction)
-		// 	fmt.Printf("new tx string: %s\n;", newTransactionString)
-		// 	db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
-		// }
+			session := sessions.Default(c)
+			var splitDisplayTransactionHashesStr string
+			if len(displayTransactionHashes) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(displayTransactionHashes) > 1 {
+				splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
+				session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
+				session.Save()
+				fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
+			}
 
-		// var displayTransactionHashes string
-		// var splitDisplayTransactionHashes []string
-		// if len(newTransactionString) < 1 {
-		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		// } else if len(newTransactionString) > 1 {
-		// 	db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
-		// 	fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
-		// 	splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
-		// 	fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
-		// }
-
-		// session := sessions.Default(c)
-		// var splitDisplayTransactionHashesStr string
-		// if len(displayTransactionHashes) < 1 {
-		// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		// } else if len(displayTransactionHashes) > 1 {
-		// 	splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
-		// 	session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
-		// 	session.Save()
-		// 	fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
-		// }
-
-		// if len(splitDisplayTransactionHashesStr) > 1 {
-		// 	db.AutoMigrate(&User{})
-		// 	db.Save(&User{})
-		// 	c.Redirect(http.StatusFound, "/index")
-		// } else if len(splitDisplayTransactionHashesStr) < 1 {
-		// 	c.Redirect(http.StatusFound, "/auth/dasboard")
-		// }
-		// })
+			if len(splitDisplayTransactionHashesStr) > 1 {
+				db.AutoMigrate(&User{})
+				db.Save(&User{})
+				c.Redirect(http.StatusFound, "/auth/dasboard")
+			} else if len(splitDisplayTransactionHashesStr) < 1 {
+				c.Redirect(http.StatusFound, "/index")
+			}
+		})
 
 		authorized.GET("/transaction_get", func(c *gin.Context) {
 			session := sessions.Default(c)
