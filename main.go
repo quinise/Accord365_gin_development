@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -264,6 +265,11 @@ func main() {
 			})
 		})
 
+		authorized.POST("/wallet", func(c *gin.Context) {
+
+			c.Redirect(http.StatusFound, "/auth/wallet_get")
+		})
+
 		authorized.GET("/wallet_get", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
@@ -272,57 +278,6 @@ func main() {
 				"title": "Wallet",
 				"user":  userID,
 			})
-		})
-
-		authorized.POST("/wallet", func(c *gin.Context) {
-
-			c.Redirect(http.StatusFound, "/auth/wallet_get")
-		})
-
-		authorized.GET("/new_payment_get", func(c *gin.Context) {
-			fmt.Println("%%%%c.Request GET", c.Request)
-
-			session := sessions.Default(c)
-			userID := session.Get("userId")
-			session.Delete("_csrf")
-			session.Set("_csrf", csrf.GetToken(c))
-			session.Save()
-			_csrf := session.Get("_csrf")
-
-			// splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
-			// if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
-			// 	fmt.Println("Error: Issue with retrieving transaction string.")
-			// 	c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			// } else {
-			// 	fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
-			// }
-
-			// Set http request header if csrf token is ok
-			if _csrf, ok := session.Get("_csrf").(string); !ok {
-				fmt.Println("@@@@@Find Request header FAILED", c.Request.Header.Values("X-CSRF-Token"))
-				c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			} else {
-				c.Request.Header.Set("X-CSRF-Token", _csrf)
-				fmt.Println("@@@@@Request header SUCCESS", c.Request.Header.Values("X-CSRF-Token"))
-			}
-
-			header := c.Request.Header.Values("X-CSRF-Token")
-			// compare csfr token to header
-			if _csrf != header[0] {
-				fmt.Println("***csrf tokens don't match!*** " + _csrf.(string) + " " + header[0])
-				c.Redirect(http.StatusFound, "/auth/new_payment_get")
-			} else if _csrf == header[0] {
-				fmt.Println("***csrf tokens match!***")
-
-				c.HTML(http.StatusOK, "new_payment.html", gin.H{
-					"_csrf": _csrf,
-					"title": "New Payment",
-					"user":  userID,
-					// "splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
-				})
-
-			}
-
 		})
 
 		authorized.POST("/new-payment", func(c *gin.Context) {
@@ -385,6 +340,56 @@ func main() {
 			}
 		})
 
+		authorized.GET("/new_payment_get", func(c *gin.Context) {
+			fmt.Println("%%%%c.Request GET", c.Request)
+
+			session := sessions.Default(c)
+			userID := session.Get("userId")
+			session.Delete("_csrf")
+			session.Set("_csrf", csrf.GetToken(c))
+			session.Save()
+			_csrf := session.Get("_csrf")
+
+			splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
+			if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
+				fmt.Println("Error: Issue with retrieving transaction string.")
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
+			}
+
+			// Set http request header if csrf token is ok
+			if _csrf, ok := session.Get("_csrf").(string); !ok {
+				fmt.Println("@@@@@Find Request header FAILED", c.Request.Header.Values("X-CSRF-Token"))
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				c.Request.Header.Set("X-CSRF-Token", _csrf)
+				fmt.Println("@@@@@Request header SUCCESS", c.Request.Header.Values("X-CSRF-Token"))
+			}
+
+			header := c.Request.Header.Values("X-CSRF-Token")
+			// compare csfr token to header
+			if _csrf != header[0] {
+				fmt.Println("***csrf tokens don't match!*** " + _csrf.(string) + " " + header[0])
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if _csrf == header[0] {
+				fmt.Println("***csrf tokens match!***")
+
+				c.HTML(http.StatusOK, "new_payment.html", gin.H{
+					"_csrf": _csrf,
+					"title": "New Payment",
+					"user":  userID,
+					// "splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
+				})
+
+			}
+
+		})
+
+		authorized.POST("/transaction_history", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, "/auth/transaction_get")
+		})
+
 		authorized.GET("/transaction_get", func(c *gin.Context) {
 			session := sessions.Default(c)
 			userID := session.Get("userId")
@@ -398,8 +403,30 @@ func main() {
 			})
 		})
 
-		authorized.POST("/transaction_history", func(c *gin.Context) {
-			c.Redirect(http.StatusFound, "/auth/transaction_get")
+		authorized.POST("/new_contract", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, "/auth/new_contract_get")
+		})
+
+		authorized.POST("/upload", func(c *gin.Context) {
+			name := c.PostForm("name")
+
+			// Source
+			file, err := c.FormFile("file")
+			if err != nil {
+				c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+				return
+			}
+
+			filename := filepath.Base(file.Filename)
+			if err := c.SaveUploadedFile(file, filename); err != nil {
+				c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
+				return
+			}
+
+			c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully with field name=%s.", file.Filename, name))
+			// TODO: update the database to include file in a BLOB
+
+			c.Redirect(http.StatusFound, "/auth/new_contract_get")
 		})
 
 		authorized.GET("/new_contract_get", func(c *gin.Context) {
@@ -413,10 +440,6 @@ func main() {
 				"title":              "New Contract",
 				"user":               userID,
 			})
-		})
-
-		authorized.POST("/new_contract", func(c *gin.Context) {
-			c.Redirect(http.StatusFound, "/auth/new_contract_get")
 		})
 
 		authorized.GET("/logout", func(c *gin.Context) {
