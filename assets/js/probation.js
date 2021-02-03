@@ -15,7 +15,7 @@ $(window).on('load', function() {
     fullName: "",
     businessName: "",
     dateOfBirth: "",
-    caseNumber: "",
+    criminalCaseNumber: "",
     city: "",
     state: "",
     county: "",
@@ -32,16 +32,15 @@ $(window).on('load', function() {
     data: web3.utils.toHex(""),
   };
 
-    $('#childSupportButton').on('click', function() {
-      $('#childSupport').toggle();
+    $('#probationButton').on('click', function() {
+      $('#probation').toggle();
     });
 
-
-  $('#childSupportForm').on('submit', function(event) {
+  $('#probationForm').on('submit', function(event) {
     event.preventDefault();
     
     function setFormData() {
-      formData = Array.from(document.querySelectorAll('#childSupportForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+      formData = Array.from(document.querySelectorAll('#probationForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
 
       if (!formData) {
         return false;
@@ -51,20 +50,17 @@ $(window).on('load', function() {
     }
     
     dataToValidate = setFormData();
-    // Test: 
-    console.log("check for dataToValidate ", dataToValidate);
+    // Test: console.log("check for dataToValidate ", dataToValidate);
     
     validatedData = validateData(dataToValidate);
-    // Test: 
-    console.log("called validateData on dataToValidate ", validatedData);
+    // Test: console.log("called validateData on dataToValidate ", validatedData);
         
     txObject = createTransactionObject(validatedData);
-    // Test: 
-    console.log("called createTransactionObject ", txObject);
+    // Test: console.log("called createTransactionObject ", txObject);
   
     provideValidatedDataTxObject(validatedData, txObject);
 
-    document.getElementById("childSupportForm").reset();
+    document.getElementById("probationForm").reset();
 
     return false;
   });
@@ -138,7 +134,7 @@ function createTransactionObject(validatedData) {
       value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
       gasLimit: web3.utils.toHex(50000),
       gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
-      data: web3.utils.toHex("test")
+      data: web3.utils.toHex("")
     };
 
     txObject = txObjectCreate;
@@ -202,13 +198,13 @@ function validateData(dataToValidate) {
     var dateOfBirthValidated = dataToValidate.dateOfBirth;
   }
 
-  // Case number must be an alphanumeric string of length 15 (not case sensitive)
-  var caseNumberRGEX = /\w{15}/;
-  var caseNumberResult = caseNumberRGEX.test(dataToValidate.caseNumber);
-  if (caseNumberResult) {
-    var caseNumberValidated = dataToValidate.caseNumber;
+ // Criminal Case Number must be an alphanumeric string of length 15 (not case sensitive)
+ var criminalCaseNumberRGEX = /\w{15}/i;
+ var criminalCaseNumberResult = criminalCaseNumberRGEX.test(dataToValidate.criminalCaseNumber);
+ if (criminalCaseNumberResult) {
+   var criminalCaseNumberValidated = dataToValidate.criminalCaseNumber;
   } else {
-    alert("Invalid case number");
+    alert("Invalid criminal case number");
     return false;
   }
 
@@ -223,7 +219,6 @@ function validateData(dataToValidate) {
   }
 
   // State must be a string of length 2
-  console.log("dataToValidate.state ", dataToValidate.state)
   var stateRGEX = /^[a-zA-Z]{2}$/i;
   var stateResult = stateRGEX.test(dataToValidate.state);
   if (stateResult) {
@@ -260,9 +255,9 @@ function validateData(dataToValidate) {
     fullName: fullNameValidated,
     businessName: businessNameValidated,
     dateOfBirth: dateOfBirthValidated,
-    caseNumber: caseNumberValidated,
+    criminalCaseNumber: criminalCaseNumberValidated,
     city: cityValidated,
-    state: stateValidated,
+    state, stateValidated,
     county: countyValidated,
     value: valueValidated,
   }
