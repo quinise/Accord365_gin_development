@@ -8,7 +8,9 @@
       <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
-      <script type="text/javascript" src="/assets/js/contractBundle.js"></script>
+      <script type="text/javascript" src="/assets/js/childSupportBundle.js"></script>
+      <script type="text/javascript" src="/assets/js/probationBundle.js"></script>
+      <script type="text/javascript" src="/assets/js/trafficFeesBundle.js"></script>
       <script type="text/javascript" src="/assets/js/upload.js"></script>
       <link rel="stylesheet" type="text/css" href="/assets/css/contract.css">
       <title>{{ .title }}</title>
@@ -38,7 +40,7 @@
               <div class='form-group'>
                 <label for='PrivateKey'>Private Key</label>
                 <input type='text' class='form-control' id='PrivateKey' name='privateKey' aria-describedby='privateKeyHelp' placeholder='0x'>
-                <small id='privateKeyHelp' class='form-text text-muted'>The address of who you want to recieve payment. Leave out the 0x!</small>
+                <small id='privateKeyHelp' class='form-text text-muted'>The private key of the address sending the Ether. Leave out the 0x!</small>
               </div>
               <div class='form-group'>
                 <label for='FullName'>Full Name</label>
@@ -46,7 +48,7 @@
                 <small id='fullNamelHelp' class='form-text text-muted'>The full name of the person making the transaction.</small>
               </div>
               <div class="form-group">
-                <label for="fname">Business Entity Legal Name</label>
+                <label for="businessName">Business Entity Legal Name</label>
                 <input type="text" class="form-control" id="businessName" name="businessName" aria-describedby="fbusinessNamelHelp" placeholder="Accord365+">
                 <small id="businessNamelHelp" class="form-text text-muted">Business Entity Legal Name (N/A is acceptable).</small>
               </div>
@@ -58,83 +60,27 @@
               <div class="form-group">
                 <label for="caseNumber">Case Number</label>
                 <input type="text" class="form-control" id="caseNumber" name="caseNumber" aria-describedby="caseNumberHelp" placeholder="Case Number">
-                <small id="caseNumberHelp" class="form-text text-muted">Your case number (N/A is acceptable). </small>
+                <small id="caseNumberHelp" class="form-text text-muted">Your case number. </small>
               </div>
               <div class="form-group">
                 <label for="city">City of Citation</label>
                 <input type="input" class="form-control"  id="city" name="city" aria-describedby="cityHelp" placeholder="New York">
-                <small id="cityHelp" class="form-text text-muted">The city that the citation occured.</small>
+                <small id="cityHelp" class="form-text text-muted">The city that the case is located.</small>
               </div>
               <div class="form-group">
                 <label for="state">State Infraction Occured</label>
-                <select class="form-control" id="state" name="state">
-                  <option value="AK">AK</option>
-                  <option value="AL">AL</option>
-                  <option value="AR">AR</option>
-                  <option value="AZ">AZ</option>
-                  <option value="CA">CA</option>
-                  <option value="CO">CO</option>
-                  <option value="CT">CT</option>
-                  <option value="DE">DE</option>
-                  <option value="FL">FL</option>
-                  <option value="GA">GA</option>
-                  <option value="HI">HI</option>
-                  <option value="IA">IA</option>
-                  <option value="ID">ID</option>
-                  <option value="IL">IL</option>
-                  <option value="IN">IN</option>
-                  <option value="KS">KS</option>
-                  <option value="KY">KY</option>
-                  <option value="LA">LA</option>
-                  <option value="MA">MA</option>
-                  <option value="MD">MD</option>
-                  <option value="ME">ME</option>
-                  <option value="MI">MI</option>
-                  <option value="MN">MN</option>
-                  <option value="MO">MO</option>
-                  <option value="MS">MS</option>
-                  <option value="MT">MT</option>
-                  <option value="NC">NC</option>
-                  <option value="ND">ND</option>
-                  <option value="NE">NE</option>
-                  <option value="NH">NH</option>
-                  <option value="NJ">NJ</option>
-                  <option value="NM">NM</option>
-                  <option value="NV">NV</option>
-                  <option value="NY">NY</option>
-                  <option value="OH">OH</option>
-                  <option value="OK">OK</option>
-                  <option value="OR">OR</option>
-                  <option value="PA">PA</option>
-                  <option value="RI">RI</option>
-                  <option value="SC">SC</option>
-                  <option value="SD">SD</option>
-                  <option value="TN">TN</option>
-                  <option value="TX">TX</option>
-                  <option value="UT">UT</option>
-                  <option value="VA">VA</option>
-                  <option value="VT">VT</option>
-                  <option value="WA">WA</option>
-                  <option value="WI">WI</option>
-                  <option value="WV">WV</option>
-                  <option value="WY">WY</option>
-                </select>
-                <small id="stateHelp" class="form-text text-muted">The state that the business is located.</small>
+                <input class="form-control" id="state" name="state" aria-describedby="stateHelp" placeholder="NY">
+                <small id="stateHelp" class="form-text text-muted">The state that the case is located, use the 2 letter format.</small>
               </div>
               <div class="form-group">
-                <label for="county">County Case is in</label>
+                <label for="county">County Infraction Occured In</label>
                 <input type="input" class="form-control"  id="county" name="county" aria-describedby="countyHelp" placeholder="King">
-                <small id="countyHelp" class="form-text text-muted">The city that the citation occured.</small>
-              </div>
-              <div class='form-group'>
-                <label for='Email'>Email address</label>
-                <input type='email' class='form-control' id='Email' name='email' aria-describedby='emailHelp' placeholder='Enter email'>
-                <small id='emailHelp' class='form-text text-muted'>We'll never share your email with anyone else.</small>
+                <small id="countyHelp" class="form-text text-muted">The city that the case occured.</small>
               </div>
               <div class="form-group">
                 <label for="value">Ethereum Value</label>
                 <input type="text" class="form-control" id="value" name="value" aria-describedby="valueHelp" placeholder="0 Eth">
-                <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum)</small>
+                <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum).</small>
             </div>
               <input type='submit' class='btn btn-primary' value='submit'/>
             </form>
@@ -152,7 +98,7 @@
               <div class='form-group'>
                 <label for='PrivateKey'>Private Key</label>
                 <input type='text' class='form-control' id='PrivateKey' name='privateKey' aria-describedby='privateKeyHelp' placeholder='0x'>
-                <small id='privateKeyHelp' class='form-text text-muted'>The address of who you want to recieve payment. Leave out the 0x!</small>
+                <small id='privateKeyHelp' class='form-text text-muted'>The private key of the address sending the Ether. Leave out the 0x!</small>
               </div>
               <div class='form-group'>
                 <label for='FullName'>Full Name</label>
@@ -160,7 +106,7 @@
                 <small id='fullNamelHelp' class='form-text text-muted'>The full name of the person making the transaction.</small>
               </div>
               <div class="form-group">
-                <label for="fname">Business Entity Legal Name</label>
+                <label for="businessName">Business Entity Legal Name</label>
                 <input type="text" class="form-control" id="businessName" name="businessName" aria-describedby="fbusinessNamelHelp" placeholder="Accord365+">
                 <small id="businessNamelHelp" class="form-text text-muted">Business Entity Legal Name (N/A is acceptable).</small>
               </div>
@@ -170,85 +116,29 @@
                 <small id="dateOfBirth" class="form-text text-muted">Your date of birth.</small>
               </div>
               <div class="form-group">
-                <label for="caseNumber">Criminal Case Number</label>
-                <input type="text" class="form-control" id="caseNumber" name="caseNumber" aria-describedby="caseNumberHelp" placeholder="Case Number">
-                <small id="caseNumberHelp" class="form-text text-muted">Your case number (N/A is acceptable). </small>
+                <label for="criminalCaseNumber">Criminal Case Number</label>
+                <input type="text" class="form-control" id="criminalCaseNumber" name="criminalCaseNumber" aria-describedby="criminalCaseNumberHelp" placeholder="Criminal Case Number">
+                <small id="criminalCaseNumberHelp" class="form-text text-muted">Your case number (N/A is acceptable). </small>
               </div>
               <div class="form-group">
-                <label for="city">City of Citation</label>
+                <label for="city">City of Probation</label>
                 <input type="input" class="form-control"  id="city" name="city" aria-describedby="cityHelp" placeholder="New York">
                 <small id="cityHelp" class="form-text text-muted">The city that the citation occured.</small>
               </div>
               <div class="form-group">
-                <label for="state">State Infraction Occured</label>
-                <select class="form-control" id="state" name="state">
-                  <option value="AK">AK</option>
-                  <option value="AL">AL</option>
-                  <option value="AR">AR</option>
-                  <option value="AZ">AZ</option>
-                  <option value="CA">CA</option>
-                  <option value="CO">CO</option>
-                  <option value="CT">CT</option>
-                  <option value="DE">DE</option>
-                  <option value="FL">FL</option>
-                  <option value="GA">GA</option>
-                  <option value="HI">HI</option>
-                  <option value="IA">IA</option>
-                  <option value="ID">ID</option>
-                  <option value="IL">IL</option>
-                  <option value="IN">IN</option>
-                  <option value="KS">KS</option>
-                  <option value="KY">KY</option>
-                  <option value="LA">LA</option>
-                  <option value="MA">MA</option>
-                  <option value="MD">MD</option>
-                  <option value="ME">ME</option>
-                  <option value="MI">MI</option>
-                  <option value="MN">MN</option>
-                  <option value="MO">MO</option>
-                  <option value="MS">MS</option>
-                  <option value="MT">MT</option>
-                  <option value="NC">NC</option>
-                  <option value="ND">ND</option>
-                  <option value="NE">NE</option>
-                  <option value="NH">NH</option>
-                  <option value="NJ">NJ</option>
-                  <option value="NM">NM</option>
-                  <option value="NV">NV</option>
-                  <option value="NY">NY</option>
-                  <option value="OH">OH</option>
-                  <option value="OK">OK</option>
-                  <option value="OR">OR</option>
-                  <option value="PA">PA</option>
-                  <option value="RI">RI</option>
-                  <option value="SC">SC</option>
-                  <option value="SD">SD</option>
-                  <option value="TN">TN</option>
-                  <option value="TX">TX</option>
-                  <option value="UT">UT</option>
-                  <option value="VA">VA</option>
-                  <option value="VT">VT</option>
-                  <option value="WA">WA</option>
-                  <option value="WI">WI</option>
-                  <option value="WV">WV</option>
-                  <option value="WY">WY</option>
-                </select>
-                <small id="stateHelp" class="form-text text-muted">The state that the business is located.</small>
+                <label for="state">State Probation Occured</label>
+                <input type="input" class="form-control" id="state" name="state" aria-describedby="stateHelp" placeholder="NY">
+                <small id="stateHelp" class="form-text text-muted">The state that the case is located, use the 2 letter format.</small>
               </div>
               <div class="form-group">
-                <label for="county">County Case is in</label>
+                <label for="county">County Probation is In</label>
                 <input type="input" class="form-control"  id="county" name="county" aria-describedby="countyHelp" placeholder="King">
                 <small id="countyHelp" class="form-text text-muted">The city that the citation occured.</small>
-              </div>
-              <div class='form-group'>
-                <label for='Email'>Email address</label>
-                <input type='email' class='form-control' id='Email' name='email' aria-describedby='emailHelp' placeholder='Enter email'>
-                <small id='emailHelp' class='form-text text-muted'>We'll never share your email with anyone else.</small>
               </div>
               <div class="form-group">
                 <label for="value">Ethereum Value</label>
                 <input type="text" class="form-control" id="value" name="value" aria-describedby="valueHelp" placeholder="0 Eth">
-                <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum)</small>
+                <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum).</small>
             </div>
               <input type='submit' class='btn btn-primary' value='submit'/>
             </form>
@@ -266,7 +156,7 @@
               <div class='form-group'>
                 <label for='PrivateKey'>Private Key</label>
                 <input type='text' class='form-control' id='PrivateKey' name='privateKey' aria-describedby='privateKeyHelp' placeholder='0x'>
-                <small id='privateKeyHelp' class='form-text text-muted'>The address of who you want to recieve payment. Leave out the 0x!</small>
+                <small id='privateKeyHelp' class='form-text text-muted'>The private key of the address sending the Ether. Leave out the 0x!</small>
               </div>
               <div class='form-group'>
                 <label for='FullName'>Full Name</label>
@@ -304,63 +194,12 @@
                 <small id="cityHelp" class="form-text text-muted">The city that the citation occured.</small>
               </div>
               <div class="form-group">
-                <label for="state">State Case is Located In</label>
-                <select class="form-control" id="state" name="state">
-                  <option value="AK">AK</option>
-                  <option value="AL">AL</option>
-                  <option value="AR">AR</option>
-                  <option value="AZ">AZ</option>
-                  <option value="CA">CA</option>
-                  <option value="CO">CO</option>
-                  <option value="CT">CT</option>
-                  <option value="DE">DE</option>
-                  <option value="FL">FL</option>
-                  <option value="GA">GA</option>
-                  <option value="HI">HI</option>
-                  <option value="IA">IA</option>
-                  <option value="ID">ID</option>
-                  <option value="IL">IL</option>
-                  <option value="IN">IN</option>
-                  <option value="KS">KS</option>
-                  <option value="KY">KY</option>
-                  <option value="LA">LA</option>
-                  <option value="MA">MA</option>
-                  <option value="MD">MD</option>
-                  <option value="ME">ME</option>
-                  <option value="MI">MI</option>
-                  <option value="MN">MN</option>
-                  <option value="MO">MO</option>
-                  <option value="MS">MS</option>
-                  <option value="MT">MT</option>
-                  <option value="NC">NC</option>
-                  <option value="ND">ND</option>
-                  <option value="NE">NE</option>
-                  <option value="NH">NH</option>
-                  <option value="NJ">NJ</option>
-                  <option value="NM">NM</option>
-                  <option value="NV">NV</option>
-                  <option value="NY">NY</option>
-                  <option value="OH">OH</option>
-                  <option value="OK">OK</option>
-                  <option value="OR">OR</option>
-                  <option value="PA">PA</option>
-                  <option value="RI">RI</option>
-                  <option value="SC">SC</option>
-                  <option value="SD">SD</option>
-                  <option value="TN">TN</option>
-                  <option value="TX">TX</option>
-                  <option value="UT">UT</option>
-                  <option value="VA">VA</option>
-                  <option value="VT">VT</option>
-                  <option value="WA">WA</option>
-                  <option value="WI">WI</option>
-                  <option value="WV">WV</option>
-                  <option value="WY">WY</option>
-                </select>
-                <small id="stateHelp" class="form-text text-muted">The state that the business is located.</small>
+                <label for="state">State Infraction Occured</label>
+                <input class="form-control" id="state" name="state" aria-describedby="stateHelp" placeholder="NY">
+                <small id="stateHelp" class="form-text text-muted">The state that the case is located, use the 2 letter format.</small>
               </div>
               <div class="form-group">
-                <label for="county">County of Citation</label>
+                <label for="county">County of Infraction</label>
                 <input type="input" class="form-control"  id="county" name="county" aria-describedby="countyHelp" placeholder="King">
                 <small id="countyHelp" class="form-text text-muted">The city that the citation occured.</small>
               </div>
@@ -369,15 +208,10 @@
                 <input type="input" class="form-control"  id="dlNumber" name="dlNumber" aria-describedby="dlNumberHelp" placeholder="1234567890asdfg">
                 <small id="dlNumberHelp" class="form-text text-muted">The city that the citation occured.</small>
               </div>
-              <div class='form-group'>
-                <label for='Email'>Email address</label>
-                <input type='email' class='form-control' id='Email' name='email' aria-describedby='emailHelp' placeholder='Enter email'>
-                <small id='emailHelp' class='form-text text-muted'>We'll never share your email with anyone else.</small>
-              </div>
               <div class="form-group">
                 <label for="value">Ethereum Value</label>
                 <input type="text" class="form-control" id="value" name="value" aria-describedby="valueHelp" placeholder="0 Eth">
-                <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum)</small>
+                <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum).</small>
             </div>
               <input type='submit' class='btn btn-primary' value='submit'/>
             </form>

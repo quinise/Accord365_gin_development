@@ -16,7 +16,10 @@ $(window).on('load', function() {
     fullName: "",
     businessName: "",
     dateOfBirth: "",
+    dateOfCitation: "",
+    citationNumber: "",
     caseNumber: "",
+    dlNumber: "",
     city: "",
     state: "",
     county: "",
@@ -33,16 +36,15 @@ $(window).on('load', function() {
     data: web3.utils.toHex(""),
   };
 
-    $('#childSupportButton').on('click', function() {
-      $('#childSupport').toggle();
+    $('#trafficFeesButton').on('click', function() {
+      $('#trafficFees').toggle();
     });
 
-
-  $('#childSupportForm').on('submit', function(event) {
+  $('#trafficFeesForm').on('submit', function(event) {
     event.preventDefault();
     
     function setFormData() {
-      formData = Array.from(document.querySelectorAll('#childSupportForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
+      formData = Array.from(document.querySelectorAll('#trafficFeesForm input')).reduce((acc, input) => ({...acc, [input.id]: input.value}), {});
 
       if (!formData) {
         return false;
@@ -52,20 +54,17 @@ $(window).on('load', function() {
     }
     
     dataToValidate = setFormData();
-    // Test: 
-    console.log("check for dataToValidate ", dataToValidate);
+    // Test: console.log("check for dataToValidate ", dataToValidate);
     
     validatedData = validateData(dataToValidate);
-    // Test: 
-    console.log("called validateData on dataToValidate ", validatedData);
+    // Test: console.log("called validateData on dataToValidate ", validatedData);
         
     txObject = createTransactionObject(validatedData);
-    // Test: 
-    console.log("called createTransactionObject ", txObject);
+    // Test: console.log("called createTransactionObject ", txObject);
   
     provideValidatedDataTxObject(validatedData, txObject);
 
-    document.getElementById("childSupportForm").reset();
+    document.getElementById("trafficFeesForm").reset();
 
     return false;
   });
@@ -139,7 +138,7 @@ function createTransactionObject(validatedData) {
       value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
       gasLimit: web3.utils.toHex(50000),
       gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
-      data: web3.utils.toHex("test")
+      data: web3.utils.toHex("")
     };
 
     txObject = txObjectCreate;
@@ -174,7 +173,7 @@ function validateData(dataToValidate) {
   }
    
   // Full name validation must be only characters and at least two units in length
-  var fullNameRGEX = /^[ a-zA-Z\-\’]+$/i;
+  var fullNameRGEX = /^[ a-zA-Z\-\’]+$/;
   var fullNameResult = fullNameRGEX.test(dataToValidate.FullName);
   if (fullNameResult) {
     var fullNameValidated = dataToValidate.FullName;
@@ -184,7 +183,7 @@ function validateData(dataToValidate) {
   }
 
   // Business name validation must be only characters and at least two units in length, "/" included
-  var businessNameRGEX = /^[\w]+([-_\s]{1}[a-z0-9]+)*$/i;
+  var businessNameRGEX = /^[\w]+([-_\s]{1}[a-z0-9]+)*$/;
   var businessNameResult = businessNameRGEX.test(dataToValidate.businessName);
   if (businessNameResult) {
     var businessNameValidated = dataToValidate.businessName;
@@ -203,6 +202,16 @@ function validateData(dataToValidate) {
     var dateOfBirthValidated = dataToValidate.dateOfBirth;
   }
 
+  // Date of citation, must be a date in the past
+  var d = new Date(dataToValidate.dateOfCitation);
+  var now = new Date();
+  if ((d.getTime()-now.getTime()) > 0) {
+    alert("Invalid date of citation");
+    return false;
+  } else {
+    var dateOfCitationValidated = dataToValidate.dateOfCitation;
+  }
+
   // Case number must be an alphanumeric string of length 15 (not case sensitive)
   var caseNumberRGEX = /\w{15}/;
   var caseNumberResult = caseNumberRGEX.test(dataToValidate.caseNumber);
@@ -213,8 +222,28 @@ function validateData(dataToValidate) {
     return false;
   }
 
+ // Citation Number must be an alphanumeric string of length 15 (not case sensitive)
+ var citationNumberRGEX = /\w{15}/i;
+ var citationNumberResult = citationNumberRGEX.test(dataToValidate.citationNumber);
+ if (citationNumberResult) {
+   var citationNumberValidated = dataToValidate.citationNumber;
+  } else {
+    alert("Invalid criminal case number");
+    return false;
+  }
+
+  // Drivers License Number must be an alphanumeric string of length 15 (not case sensitive)
+  var dlNumberRGEX = /\w{15}/;
+  var dlNumberResult = dlNumberRGEX.test(dataToValidate.dlNumber);
+  if (dlNumberResult) {
+    var dlNumberValidated = dataToValidate.dlNumber;
+  } else {
+    alert("Invalid drivers license number");
+    return false;
+  }
+
   // City (of citation) validation must be only characters and at least two units in length
-  var cityRGEX = /^[ a-zA-Z\-\’]+$/i;
+  var cityRGEX = /^[ a-zA-Z\-\’]+$/;
   var cityResult = cityRGEX.test(dataToValidate.city);
   if (cityResult) {
     var cityValidated = dataToValidate.city;
@@ -224,8 +253,7 @@ function validateData(dataToValidate) {
   }
 
   // State must be a string of length 2
-  console.log("dataToValidate.state ", dataToValidate.state)
-  var stateRGEX = /^[a-zA-Z]{2}$/i;
+  var stateRGEX = /[A-Z]{2}/;
   var stateResult = stateRGEX.test(dataToValidate.state);
   if (stateResult) {
     var stateValidated = dataToValidate.state;
@@ -235,7 +263,7 @@ function validateData(dataToValidate) {
   }
 
   // County must be a string
-  var countyRGEX = /^[A-Za-z]+$/i;
+  var countyRGEX = /^[A-Za-z]+$/;
   var countyResult = countyRGEX.test(dataToValidate.county);
   if (countyResult) {
     var countyValidated = dataToValidate.county;
@@ -261,9 +289,12 @@ function validateData(dataToValidate) {
     fullName: fullNameValidated,
     businessName: businessNameValidated,
     dateOfBirth: dateOfBirthValidated,
+    dateOfCitation: dateOfCitationValidated,
     caseNumber: caseNumberValidated,
+    citationNumber: citationNumberValidated,
+    dlNumber: dlNumberValidated,
     city: cityValidated,
-    state: stateValidated,
+    state, stateValidated,
     county: countyValidated,
     value: valueValidated,
   }

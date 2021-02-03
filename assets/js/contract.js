@@ -9,12 +9,18 @@ console.log("Bundle.js loaded");
 
 $(window).on('load', function() {  
   var validatedData = {
-    transactionTitle: "",
     toAddress: "",
     fromAddress: "",
     privateKey: "",
     fullName: "",
-    email: "",
+    businessName: "",
+    dateOfBirth: "",
+    caseNumber: "",
+    criminalCaseNumber: "",
+    dlNumber: "",
+    city: "",
+    state: "",
+    county: "",
     value: 0,
   }  
   
@@ -25,7 +31,7 @@ $(window).on('load', function() {
     value: web3.utils.toHex(web3.utils.toWei((validatedData.value).toString(), 'ether')),
     gasLimit: web3.utils.toHex(50000),
     gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
-    data: web3.utils.toHex("test"),
+    data: web3.utils.toHex(""),
   };
 
     $('#childSupportButton').on('click', function() {
@@ -65,6 +71,7 @@ $(window).on('load', function() {
     provideValidatedDataTxObject(validatedData, txObject);
 
     document.getElementById("childSupportForm").reset();
+
     return false;
   });
 
@@ -93,6 +100,7 @@ $(window).on('load', function() {
     provideValidatedDataTxObject(validatedData, txObject);
 
     document.getElementById("probationForm").reset();
+
     return false;
   });
 
@@ -121,6 +129,7 @@ $(window).on('load', function() {
     provideValidatedDataTxObject(validatedData, txObject);
 
     document.getElementById("trafficFeesForm").reset();
+
     return false;
   });
 
@@ -204,17 +213,6 @@ function createTransactionObject(validatedData) {
 }
 
 function validateData(dataToValidate) {
-  // Transaction Title cannot contain numbers, must only contain alphabetic characters, no special characters 
-  var transactionTitleRGEX = /^[ a-zA-Z\-\’]+$/;
-  var transactionTitleResult = transactionTitleRGEX.test(dataToValidate.TransactionTitle);
-
-  if (transactionTitleResult) {
-    var transactionTitleValidated = dataToValidate.TransactionTitle;
-  } else {
-    alert("Invalid transaction title");
-    return false;
-  }
-
   // To address must be a hex-string
   var toAddressRGEX = /^0x[a-fA-F0-9]{40}$/;
   var toAddressResult = toAddressRGEX.test(dataToValidate.ToAddress);
@@ -247,17 +245,98 @@ function validateData(dataToValidate) {
     alert("Invalid full name");
     return false;
   }
-  
-  // Email validation must be a valid email address
-  var emailRGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  var emailResult = emailRGEX.test(dataToValidate.Email);
-  if (emailResult) {
-    var emailValidated = dataToValidate.Email;
+
+  // Business name validation must be only characters and at least two units in length, "/" included
+  var businessNameRGEX = /^[\w]+([-_\s]{1}[a-z0-9]+)*$/;
+  var businessNameResult = businessNameRGEX.test(dataToValidate.businessName);
+  if (businessNameResult) {
+    var businessNameValidated = dataToValidate.businessName;
   } else {
-    alert("Invalid email");
+    alert("Invalid business name");
     return false;
   }
 
+  // Date of Birth validation, must be a date
+  var d = new Date((dataToValidate.dateOfBirth));
+  var now = new Date();
+  if ((d.getTime()-now.getTime()) > 0) {
+    alert("Invalid date of birth");
+    return false;
+  } else {
+    var dateOfBirthValidated = dataToValidate.dateOfBirth;
+  }
+
+  // Date of citation, must be a date in the past
+  var d = new Date(dataToValidate.dateOfCitation);
+  var now = new Date();
+  if ((d.getTime()-now.getTime()) > 0) {
+    alert("Invalid date of citation");
+    return false;
+  } else {
+    var dateOfCitationValidated = dataToValidate.dateOfCitation;
+  }
+
+  // Case number must be an alphanumeric string of length 15 (not case sensitive)
+  var caseNumberRGEX = /\w{15}/;
+  var caseNumberResult = caseNumberRGEX.test(dataToValidate.caseNumber);
+  if (caseNumberResult) {
+    var caseNumberValidated = dataToValidate.caseNumber;
+  } else {
+    alert("Invalid case number");
+    return false;
+  }
+
+ // Criminal Case Number must be an alphanumeric string of length 15 (not case sensitive)
+ var criminalCaseNumberRGEX = /\w{15}/;
+ var criminalCaseNumberResult = criminalCaseNumberRGEX.test(dataToValidate.criminalCaseNumber);
+ if (criminalCaseNumberResult) {
+   var criminalCaseNumberValidated = dataToValidate.criminalCaseNumber;
+  } else {
+    alert("Invalid criminal case number");
+    return false;
+  }
+
+  // Drivers License Number must be an alphanumeric string of length 15 (not case sensitive)
+  var dlNumberRGEX = /\w{15}/;
+  var dlNumberResult = dlNumberRGEX.test(dataToValidate.dlNumber);
+  if (dlNumberResult) {
+    var dlNumberValidated = dataToValidate.dlNumber;
+  } else {
+    alert("Invalid drivers license number");
+    return false;
+  }
+
+  // City (of citation) validation must be only characters and at least two units in length
+  var cityRGEX = /^[ a-zA-Z\-\’]+$/;
+  var cityResult = cityRGEX.test(dataToValidate.city);
+  if (cityResult) {
+    var cityValidated = dataToValidate.city;
+  } else {
+    alert("Invalid city name");
+    return false;
+  }
+
+  // State must be a string of length 2
+  var stateRGEX = /[A-Z]{2}/;
+  var stateResult = stateRGEX.test(dataToValidate.state);
+  if (stateResult) {
+    var stateValidated = dataToValidate.state;
+  } else {
+    alert("Invalid state name");
+    return false;
+  }
+
+  // County must be a string
+  var countyRGEX = /^[A-Za-z]+$/;
+  var countyResult = countyRGEX.test(dataToValidate.county);
+  if (countyResult) {
+    var countyValidated = dataToValidate.county;
+  } else {
+    alert("Invalid county name");
+    return false;
+  }
+
+  // Ethereum transaction validation must be a number (decimal accepted)
   var valueRGEX = /^\d{0,9}(?:[.]\d{0,9})?$/;
   var valueResult = valueRGEX.test(dataToValidate.value);
   if (valueResult) {
@@ -273,7 +352,14 @@ function validateData(dataToValidate) {
     fromAddress: fromAdressValidated,
     privateKey: privateKeyValidated,
     fullName: fullNameValidated,
-    email: emailValidated,
+    businessName: businessNameValidated,
+    dateOfBirth: dateOfBirthValidated,
+    dateOfCitation: dateOfCitationValidated,
+    caseNumber: caseNumberValidated,
+    criminalCaseNumber: criminalCaseNumberValidated,
+    dlNumber: dlNumberValidated,
+    city: cityValidated,
+    state, stateValidated,
     value: valueValidated,
   }
 
