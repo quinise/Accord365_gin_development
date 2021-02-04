@@ -40,9 +40,14 @@
                   <input type='text' class='form-control' id='PrivateKey' name='privateKey' aria-describedby='privateKeyHelp' placeholder='0x'>
                   <small id='privateKeyHelp' class='form-text text-muted'>The private key for the account above. Leave out the 0x!</small>
                 </div>
+                <div class="form-group">
+                  <label for="value">Ethereum Value</label>
+                  <input type="text" class="form-control" id="value" name="value" aria-describedby="valueHelp" placeholder="0 Eth">
+                  <small id="valueHelp" class="form-text text-muted">The amount of Ether to send in this transaction (0.01 Eth is the minimum).</small>
+                </div>
                 <div class='form-group'>
                   <label for='FullName'>Full Name</label>
-                  <input type='text' class='form-control' id='FullName' name='fullName' aria-describedby='fullNamelHelp' placeholder='John Doe'>
+                  <input type='text' class='form-control' id='FullName' name='fullName' aria-describedby='fullNamelHelp' placeholder='Jamal Henderson'>
                   <small id='fullNamelHelp' class='form-text text-muted'>The full name of the person doing business.</small>
                 </div>
                 <div class='form-group'>
@@ -51,14 +56,14 @@
                   <small id='pocFullNameHelp' class='form-text text-muted'>The full name of the point of contact for the business' agreement.</small>
                 </div>
                 <div class="form-group">
-                  <label for="phoneNumber">Business Entity Point of Contact Phone Number</label>
-                  <input type="text" class="form-control" id="bePhoneNumber" name="bePhoneNumber" aria-describedby="bePhoneNumberHelp" placeholder="5555555">
-                  <small id="bePhoneNumberHelp" class="form-text text-muted">The phone number of the point of contact for the business. We'll never share your phone number with anyone else.</small>
+                  <label for="pocPhoneNumber">Business Entity Point of Contact Phone Number</label>
+                  <input type="text" class="form-control" id="pocPhoneNumber" name="pocPhoneNumber" aria-describedby="pocPhoneNumberHelp" placeholder="5555555">
+                  <small id="pocPhoneNumberHelp" class="form-text text-muted">The phone number of the point of contact for the business. We'll never share your phone number with anyone else.</small>
                 </div>
                 <div class='form-group'>
                   <label for='Email'>Business Entity Point of Contact Email address</label>
-                  <input type='businessEmail' class='form-control' id='businessEmail' name='businessEmail' aria-describedby='businessEmailHelp' placeholder='Enter business email'>
-                  <small id='businessEmailHelp' class='form-text text-muted'>The email address of the point of contact for the business. We'll never share your email with anyone else.</small>
+                  <input type='pocBusinessEmail' class='form-control' id='pocBusinessEmail' name='pocBusinessEmail' aria-describedby='pocBusinessEmailHelp' placeholder='Enter business email'>
+                  <small id='pocBusinessEmailHelp' class='form-text text-muted'>The email address of the point of contact for the business. We'll never share your email with anyone else.</small>
                 </div>
                 <div class="form-group">
                   <label for="fname">Business Entity Legal Name</label>
@@ -66,9 +71,9 @@
                   <small id="businessNamelHelp" class="form-text text-muted">The business entity's legal name.</small>
                 </div>
                 <div class="form-group">
-                  <label for="phoneNumber">Headquarters Phone Number</label>
-                  <input type="text" class="form-control" id="phoneNumber" name="phoneNumberReceiver" aria-describedby="phoneHelp" placeholder="5555555">
-                  <small id="phoneHelp" class="form-text text-muted">We'll never share your phone number with anyone else.</small>
+                  <label for="hqPhoneNumber">Headquarters Phone Number</label>
+                  <input type="text" class="form-control" id="hqPhoneNumber" name="hqPhoneNumber" aria-describedby="hqPhoneNumberHelp" placeholder="5555555">
+                  <small id="hqPhoneNumberHelp" class="form-text text-muted">We'll never share your phone number with anyone else.</small>
                 </div>
                 <div class="form-group">
                   <label for="beWebsite">Business Headquarters Website</label>
@@ -98,7 +103,7 @@
                 <div class="form-group">
                   <label for="beAdr">Business Headquarters Address</label>
                   <input type="text" class="form-control" id="beAdr" name="beAdr" aria-describedby="beAdrHelp" placeholder="542 W. 15th Street #304">
-                  <small id="beAdrHelp" class="form-text text-muted">The address of the business headquarters.</small>
+                  <small id="beAdrHelp" class="form-text text-muted">The address of the business headquarters (no "#" characters).</small>
                 </div>
                   <div class="form-group">
                     <label for="beCity">Business Headquarters City</label>
@@ -121,11 +126,6 @@
                   <small id="beCountryCodeHelp" class="form-text text-muted">The country code of the business.</small> 
                 </div>
                 <div class="form-group">
-                  <label for="doingFullName">Doing Business As, Full Name</label>
-                  <input type="input" class="form-control"  id="doingFullName" name="doingFullName" aria-describedby="doingFullNameHelp" placeholder="Jamal Henderson">
-                  <small id="doingFullNameHelp" class="form-text text-muted">The full name of the  person doing business on behalf of the business entity.</small>
-              </div>
-                <div class="form-group">
                   <label for="doingAdr">Doing Business As, Address</label>
                   <input type="text" class="form-control" id="doingAdr" name="doingAdr" aria-describedby="doingAdrHelp" placeholder="542 W. 15th Street #303">
                   <small id="doingAdrHelp" class="form-text text-muted">The address of the  person doing business on behalf of the business entity.</small>
@@ -137,7 +137,7 @@
                   </div>
                 <div class="form-group">
                   <label for="dbaState">Doing Business As, State</label>
-                  <input class="form-control" id="dbastate" name="dbastate" aria-describedby="dbastateHelp" placeholder="NY">
+                  <input class="form-control" id="dbaState" name="dbaState" aria-describedby="dbaStateHelp" placeholder="NY">
                   <small id="dbaStateHelp" class="form-text text-muted">The state of the  person doing business on behalf of the business entity.</small>
                 </div>
                   <div class="form-group">
