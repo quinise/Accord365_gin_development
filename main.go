@@ -92,7 +92,7 @@ func init() {
 	conf = &oauth2.Config{
 		ClientID:     cred.Cid,
 		ClientSecret: cred.Csecret,
-		RedirectURL:  "http://127.0.0.1:8081/auth_google",
+		RedirectURL:  "http://127.0.0.1:8080/auth_google",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.profile", // You have to select your own scope from here -> https://developers.google.com/identity/protocols/googlescopes#google_sign-in
 		},
@@ -101,7 +101,7 @@ func init() {
 }
 
 func main() {
-	dsn := "root:obatala88@tcp(127.0.0.1:3306)/accord365_development?charset=utf8&parseTime=True&loc=Local"
+	dsn := "root:password@tcp(127.0.0.1:3306)/accord365_development?charset=utf8&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -281,6 +281,7 @@ func main() {
 		})
 
 		authorized.POST("/new-payment", func(c *gin.Context) {
+			fmt.Println("*****In new-payment")
 			// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
 			var transaction string
 			transaction = c.PostForm("txValueHidden")
@@ -334,7 +335,7 @@ func main() {
 			if len(splitDisplayTransactionHashesStr) > 1 {
 				db.AutoMigrate(&User{})
 				db.Save(&User{})
-				c.Redirect(http.StatusFound, "/auth/dasboard")
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
 			} else if len(splitDisplayTransactionHashesStr) < 1 {
 				c.Redirect(http.StatusFound, "/index")
 			}
@@ -450,6 +451,6 @@ func main() {
 		})
 	}
 
-	// Listen and server on 0.0.0.0:8081
-	router.Run(":8081")
+	// Listen and server on 0.0.0.0:8080
+	router.Run(":8080")
 }
