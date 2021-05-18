@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/accord365/middleware"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 
@@ -109,19 +110,6 @@ func main() {
 
 	})
 
-	router.GET("/auth/:google/callback", func(c *gin.Context) {
-		user, err := gothic.CompleteAuth(c.Param("google"), c.Writer, c.Request)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		c.HTML(http.StatusOK, "dashboard.html", gin.H{
-			"title": "Dashboard",
-			"user":  user,
-		})
-	})
-
 	router.GET("/auth/:google", func(c *gin.Context) {
 		err := gothic.BeginAuth(c.Param("google"), c.Writer, c.Request)
 		if err != nil {
@@ -130,154 +118,174 @@ func main() {
 		}
 	})
 
-	authorized := router.Group("/auth")
-	authorized.GET("/dashboard", func(c *gin.Context) {
+	router.GET("/auth/:google/callback", func(c *gin.Context) {
+		user, err := gothic.CompleteAuth(c.Param("google"), c.Writer, c.Request)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		} else {
+			session := sessions.Default(c)
+			session.Set("userId", user)
+			session.Save()
+		}
+
 		c.HTML(http.StatusOK, "dashboard.html", gin.H{
 			"title": "Dashboard",
+			"user":  user,
 		})
 	})
 
-	authorized.POST("/wallet", func(c *gin.Context) {
-
-		c.Redirect(http.StatusFound, "/auth/wallet_get")
-	})
-
-	authorized.GET("/wallet_get", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "wallet.html", gin.H{
-			"title": "Wallet",
+	authorized := router.Group("/auth")
+	authorized.Use(middleware.AuthorizeRequest())
+	{
+		authorized.GET("/dashboard", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "dashboard.html", gin.H{
+				"title": "Dashboard",
+			})
 		})
-	})
-
-	authorized.GET("/new_payment_get", func(c *gin.Context) {
-		fmt.Println("%%%%c.Request GET", c.Request)
-
-		session := sessions.Default(c)
-		session.Save()
-
-		splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
-		if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
-			fmt.Println("Error: Issue with retrieving transaction string.")
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		} else {
-			fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
-		}
-
-		c.HTML(http.StatusOK, "new_payment.html", gin.H{
-			"title": "New Payment",
-			// "splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
+	
+		authorized.POST("/wallet", func(c *gin.Context) {
+	
+			c.Redirect(http.StatusFound, "/auth/wallet_get")
 		})
-	})
-
-	authorized.POST("/new-payment", func(c *gin.Context) {
-		fmt.Println("*****In new-payment")
-		// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
-		var transaction string
-		transaction = c.PostForm("txValueHidden")
-		if len(transaction) < 1 {
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		} else {
-			fmt.Printf("tx: %s\n;", transaction)
-		}
-
-		var result string
-		if len(transaction) < 1 {
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		} else if len(transaction) > 1 {
-			db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
-			fmt.Printf("result: %s\n;", result)
-		}
-
-		var newTransactionString string
-		if result == "null" || len(result) < 1 {
-			newTransactionString = transaction
-			fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
-			db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
-		} else if len(result) > 1 {
-			newTransactionString = (result + "," + transaction)
-			fmt.Printf("new tx string: %s\n;", newTransactionString)
-			db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
-		}
-
-		var displayTransactionHashes string
-		var splitDisplayTransactionHashes []string
-		if len(newTransactionString) < 1 {
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		} else if len(newTransactionString) > 1 {
-			db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
-			fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
-			splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
-			fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
-		}
-
-		session := sessions.Default(c)
-		var splitDisplayTransactionHashesStr string
-		if len(displayTransactionHashes) < 1 {
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		} else if len(displayTransactionHashes) > 1 {
-			splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
-			session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
+	
+		authorized.GET("/wallet_get", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "wallet.html", gin.H{
+				"title": "Wallet",
+			})
+		})
+	
+		authorized.GET("/new_payment_get", func(c *gin.Context) {
+			fmt.Println("%%%%c.Request GET", c.Request)
+	
+			session := sessions.Default(c)
 			session.Save()
-			fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
-		}
-
-		if len(splitDisplayTransactionHashesStr) > 1 {
-			db.AutoMigrate(&User{})
-			db.Save(&User{})
-			c.Redirect(http.StatusFound, "/auth/new_payment_get")
-		} else if len(splitDisplayTransactionHashesStr) < 1 {
-			c.Redirect(http.StatusFound, "/index")
-		}
-	})
-
-	authorized.POST("/transaction_history", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/auth/transaction_get")
-	})
-
-	authorized.GET("/transaction_get", func(c *gin.Context) {
-
-		c.HTML(http.StatusOK, "transaction.html", gin.H{
-			"title": "Transaction History",
+	
+			splitDisplayTransactionHashesString := session.Get("splitDisplayTransactionHashesString")
+			if splitDisplayTransactionHashesString != session.Get("splitDisplayTransactionHashesString") {
+				fmt.Println("Error: Issue with retrieving transaction string.")
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				fmt.Printf("Session test: %s\n;", splitDisplayTransactionHashesString)
+			}
+	
+			c.HTML(http.StatusOK, "new_payment.html", gin.H{
+				"title": "New Payment",
+				// "splitDisplayTransactionHashesString": splitDisplayTransactionHashesString,
+			})
 		})
-	})
-
-	authorized.POST("/new_contract", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/auth/new_contract_get")
-	})
-
-	authorized.POST("/upload", func(c *gin.Context) {
-		name := c.PostForm("name")
-
-		// Source
-		file, err := c.FormFile("file")
-		if err != nil {
-			c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
-			return
-		}
-
-		filename := filepath.Base(file.Filename)
-		if err := c.SaveUploadedFile(file, filename); err != nil {
-			c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
-			return
-		}
-
-		c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully with field name=%s.", file.Filename, name))
-		// TODO: update the database to include file in a BLOB
-
-		c.Redirect(http.StatusFound, "/auth/new_contract_get")
-	})
-
-	authorized.GET("/new_contract_get", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "new_contract.html", gin.H{
-			"title": "New Contract",
+	
+		authorized.POST("/new-payment", func(c *gin.Context) {
+			fmt.Println("*****In new-payment")
+			// TODO (Production): update database to permit unlimited char/VAR for transaction_hashes
+			var transaction string
+			transaction = c.PostForm("txValueHidden")
+			if len(transaction) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else {
+				fmt.Printf("tx: %s\n;", transaction)
+			}
+	
+			var result string
+			if len(transaction) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(transaction) > 1 {
+				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&result)
+				fmt.Printf("result: %s\n;", result)
+			}
+	
+			var newTransactionString string
+			if result == "null" || len(result) < 1 {
+				newTransactionString = transaction
+				fmt.Printf("new transaction string (no new entries): %s\n;", newTransactionString)
+				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			} else if len(result) > 1 {
+				newTransactionString = (result + "," + transaction)
+				fmt.Printf("new tx string: %s\n;", newTransactionString)
+				db.Exec("UPDATE users SET transaction_hashes = ? WHERE id = ? ", newTransactionString, "2")
+			}
+	
+			var displayTransactionHashes string
+			var splitDisplayTransactionHashes []string
+			if len(newTransactionString) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(newTransactionString) > 1 {
+				db.Raw("SELECT transaction_hashes FROM users WHERE id = ?", "2").Scan(&displayTransactionHashes)
+				fmt.Printf("displayTransactionHashes: %s\n;", displayTransactionHashes)
+				splitDisplayTransactionHashes = strings.Split(displayTransactionHashes, ",")
+				fmt.Printf("splitDisplayTransactionHashes: %s\n;", splitDisplayTransactionHashes)
+			}
+	
+			session := sessions.Default(c)
+			var splitDisplayTransactionHashesStr string
+			if len(displayTransactionHashes) < 1 {
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(displayTransactionHashes) > 1 {
+				splitDisplayTransactionHashesStr = strings.Join(splitDisplayTransactionHashes, "\n")
+				session.Set("splitDisplayTransactionHashesString", splitDisplayTransactionHashesStr)
+				session.Save()
+				fmt.Printf("splitDisplayTransactionHashesStr %s\n", splitDisplayTransactionHashesStr)
+			}
+	
+			if len(splitDisplayTransactionHashesStr) > 1 {
+				db.AutoMigrate(&User{})
+				db.Save(&User{})
+				c.Redirect(http.StatusFound, "/auth/new_payment_get")
+			} else if len(splitDisplayTransactionHashesStr) < 1 {
+				c.Redirect(http.StatusFound, "/index")
+			}
 		})
-	})
-
-	authorized.GET("/logout", func(c *gin.Context) {
-		session := sessions.Default(c)
-		session.Clear()
-		session.Save()
-		c.Redirect(http.StatusFound, "/")
-	})
+	
+		authorized.POST("/transaction_history", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, "/auth/transaction_get")
+		})
+	
+		authorized.GET("/transaction_get", func(c *gin.Context) {
+	
+			c.HTML(http.StatusOK, "transaction.html", gin.H{
+				"title": "Transaction History",
+			})
+		})
+	
+		authorized.POST("/new_contract", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, "/auth/new_contract_get")
+		})
+	
+		authorized.POST("/upload", func(c *gin.Context) {
+			name := c.PostForm("name")
+	
+			// Source
+			file, err := c.FormFile("file")
+			if err != nil {
+				c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+				return
+			}
+	
+			filename := filepath.Base(file.Filename)
+			if err := c.SaveUploadedFile(file, filename); err != nil {
+				c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
+				return
+			}
+	
+			c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully with field name=%s.", file.Filename, name))
+			// TODO: update the database to include file in a BLOB
+	
+			c.Redirect(http.StatusFound, "/auth/new_contract_get")
+		})
+	
+		authorized.GET("/new_contract_get", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "new_contract.html", gin.H{
+				"title": "New Contract",
+			})
+		})
+	
+		authorized.GET("/logout", func(c *gin.Context) {
+			session := sessions.Default(c)
+			session.Clear()
+			session.Save()
+			c.Redirect(http.StatusFound, "/")
+		})
+	}
 
 	// Listen and server on 0.0.0.0:8080
 	router.Run(":8080")
