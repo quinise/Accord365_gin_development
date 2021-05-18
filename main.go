@@ -6,11 +6,11 @@ import (
 	"fmt"
 
 	//"io/ioutil"
-	//"log"
+	"log"
 	//"html/template"
 	"net/http"
 
-	//"os"
+	"os"
 	"path/filepath"
 	//"strings"
 	"time"
@@ -20,10 +20,11 @@ import (
 
 	// "github.com/accord365/middleware"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/sessions"
+	// "github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 
 	// "github.com/markbates/goth/gothic"
+	"github.com/joho/godotenv"
 	"github.com/markbates/goth/providers/google"
 	"github.com/oov/gothic"
 	csrf "github.com/utrack/gin-csrf"
@@ -82,158 +83,35 @@ func randToken() string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-// func init() {
-// 	file, err := ioutil.ReadFile("./creds.json")
-// 	if err != nil {
-// 		log.Printf("File error: %v\n", err)
-// 		os.Exit(1)
-// 	}
-// 	if err := json.Unmarshal(file, &cred); err != nil {
-// 		log.Println("unable to marshal data")
-// 		return
-// 	}
+func goDotEnvVariable(key string) string {
 
-// 	conf = &oauth2.Config{
-// 		ClientID:     cred.Cid,
-// 		ClientSecret: cred.Csecret,
-// 		RedirectURL:  "http://127.0.0.1:8080/auth",
-// 		Scopes: []string{
-// 			"https://www.googleapis.com/auth/userinfo.profile", // You have to select your own scope from here -> https://developers.google.com/identity/protocols/googlescopes#google_sign-in
-// 		},
-// 		Endpoint: google.Endpoint,
-// 	}
-// }
+	// load .env file
+	err := godotenv.Load(".env")
 
-// func indexHandler(c *gin.Context) {
-// 	c.HTML(http.StatusOK, "index.html", gin.H{})
-// }
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
-// func getLoginURL(state string) string {
-// 	return conf.AuthCodeURL(state)
-// }
-
-// // Google AuthHandler handles authentication of a user and initiates a session.
-// func authHandler(c *gin.Context) {
-// 	// Handle the exchange code to initiate a transport.
-// 	session := sessions.Default(c)
-// 	retrievedState := session.Get("state")
-// 	queryState := c.Request.URL.Query().Get("state")
-// 	if retrievedState != queryState {
-// 		log.Printf("Invalid session state: retrieved: %s; Param: %s", retrievedState, queryState)
-// 		c.HTML(http.StatusUnauthorized, "error.tmpl", gin.H{"message": "Invalid session state."})
-// 		return
-// 	}
-// 	code := c.Request.URL.Query().Get("code")
-// 	tok, err := conf.Exchange(oauth2.NoContext, code)
-// 	if err != nil {
-// 		log.Println(err)
-// 		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Login failed. Please try again."})
-// 		return
-// 	}
-
-// 	client := conf.Client(oauth2.NoContext, tok)
-// 	userinfo, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
-
-// 	if err != nil {
-// 		log.Println(err)
-// 		c.AbortWithStatus(http.StatusBadRequest)
-// 		fmt.Println("This is where we're failing")
-// 		return
-// 	}
-// 	defer userinfo.Body.Close()
-// 	data, _ := ioutil.ReadAll(userinfo.Body)
-// 	u := SessionUser{}
-// 	if err = json.Unmarshal(data, &u); err != nil {
-// 		log.Println(err)
-// 		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error marshalling response. Please try agian."})
-// 		return
-// 	}
-
-// Save unique id / email to session
-// 	session.Set("userId", u.Sub)
-// 	session.Set("userGivenName", u.GivenName)
-// 	session.Set("userFamilyName", u.FamilyName)
-// 	err = session.Save()
-
-// 	userID := session.Get("userId")
-// 	userGivenName := session.Get("userGivenName")
-// 	userFamilyName := session.Get("userFamilyName")
-
-// 	// query database for u.Email/userID
-// 	idResult := User{}
-// 	emptyUser := User{}
-// 	// ToDo (production): instead of email call it identification string db field must be unique
-// 	db.Where("email = ?", userID).First(&idResult)
-// 	if idResult == emptyUser {
-// 		// fmt.Println("idResult ", idResult)
-// 		user := User{Name: userGivenName.(string) + " " + userFamilyName.(string), Provider: "google", ProviderID: "3", Email: userID.(string)}
-// 		result := db.Create(&user)
-
-// 		fmt.Println("create user Result ", result)
-// 	}
-
-// 	if err != nil {
-// 		log.Println(err)
-// 		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving session. Please try again."})
-// 		return
-// 	}
-// 	// var seen = false
-// 	if session.Get("userId") == u.Sub {
-// 		// seen := true
-// 		log.Println("seen!")
-// 	} else {
-// 		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving user. Please try again."})
-// 		return
-// 	}
-
-// 	// seen := false
-// 	dsn := "root:obatala88@tcp(127.0.0.1:3306)/accord365_development?charset=utf8&parseTime=True&loc=Local"
-// 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-// 	if err != nil {
-// 		// seen = true
-// 		panic(err.Error())
-// 	} else {
-// 		results := db.Save(&u)
-// 		if results != nil {
-// 			log.Println(results)
-// 			c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{"message": "Error while saving user. Please try again."})
-// 			return
-// 		}
-// 	}
-
-// 	c.Redirect(http.StatusFound, "/auth/dashboard")
-
-// 	// c.HTML(http.StatusOK, "dashboard.html", gin.H{
-// 	// 	"title":  "Dashboard",
-// 	// 	"userId": session.Get("userId"),
-// 	// 	"seen":   seen,
-// 	// })
-// }
-
-// func loginHandler(c *gin.Context) {
-// 	state = randToken()
-// 	session := sessions.Default(c)
-// 	session.Set("state", state)
-// 	session.Save()
-// 	c.Writer.Write([]byte("<html><title>Golang Google</title> <body> <a href='" + getLoginURL(state) + "'><button>Login with Google!</button> </a> </body></html>"))
-// }
+	return os.Getenv(key)
+}
 
 func main() {
+	//sessionSecret := goDotEnvVariable("sessionSecret")
 
-	key := "h)xx5i%Ob[E+K_b" // Replace with your SESSION_SECRET or similar
-	maxAge := 86400 * 30     // 30 days
-	isProd := false          // Set to true when serving over https
+	// key := sessionSecret // Replace with your SESSION_SECRET or similar
+	// maxAge := 86400 * 30     // 30 days
+	// isProd := false          // Set to true when serving over https
 
-	store := sessions.NewCookieStore([]byte(key))
-	store.MaxAge(maxAge)
-	store.Options.Path = "/"
-	store.Options.HttpOnly = true // HttpOnly should always be enabled
-	store.Options.Secure = isProd
+	// store := sessions.NewCookieStore([]byte(key))
+	// store.MaxAge(maxAge)
+	// store.Options.Path = "/"
+	// store.Options.HttpOnly = true // HttpOnly should always be enabled
+	// store.Options.Secure = isProd
 
-	// gothic.Store = store
+	clientId := goDotEnvVariable("clientId")
+	clientSecret := goDotEnvVariable("clientSecret")
 
-	googleProvider := google.New("649290674745-7u4vagpfm303plk8qo8sktpdb5vscl0l.apps.googleusercontent.com", "ChUeGtuJ1IrlIWeddHF3XS9g", "http://localhost:8080/auth/google/callback")
+	googleProvider := google.New(clientId, clientSecret, "http://localhost:8080/auth/google/callback")
 	goth.UseProviders(googleProvider)
 
 	// dsn := "root:obatala88@tcp(127.0.0.1:3306)/accord365_development?charset=utf8&parseTime=True&loc=Local"
