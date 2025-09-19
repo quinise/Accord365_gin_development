@@ -1,9 +1,9 @@
 # Accord365 (Gin + Blockchain)
 
-[![Go](https://img.shields.io/badge/go-1.20-blue?logo=go)]()
-[![Solidity](https://img.shields.io/badge/solidity-ERC20-363636?logo=ethereum)]()
-[![Postgres](https://img.shields.io/badge/postgres-15-blue?logo=postgresql)]()
-[![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Go](https://img.shields.io/badge/go-1.20-blue?logo=go)](https://go.dev/)
+[![Solidity](https://img.shields.io/badge/solidity-ERC20-363636?logo=ethereum)](https://docs.soliditylang.org/)
+[![Postgres](https://img.shields.io/badge/postgres-15-blue?logo=postgresql)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
 Accord365 is an Ethereum-based banking application built using the Go Gin framework and modern web technologies. The project explored blockchain integrations, user account management, and real-world transaction workflows.
 
