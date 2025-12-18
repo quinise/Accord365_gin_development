@@ -9,7 +9,7 @@ Accord365 is an Ethereum-based banking application built using the Go Gin framew
 
 Although development was not fully completed, this repo documents significant progress toward building a decentralized banking app that combines blockchain with a traditional backend.
 
-## 🚀 Features & Accomplishments
+## Features & Accomplishments
 ### - Go/Gin Server
 - Built server with HTML templates and dynamic routes.
 - Implemented cookies and session management.
@@ -37,7 +37,7 @@ Although development was not fully completed, this repo documents significant pr
 - Prototyped wireframes and collaborated with the client in focus groups.
 - Experimented with the Buffalo framework (Go front end).
 
-## 🛠️ Tech Stack
+## Tech Stack
 ### Frontend
 - HTML, CSS, Bootstrap
 - JavaScript, jQuery
@@ -53,7 +53,7 @@ Although development was not fully completed, this repo documents significant pr
 - OAuth2 (Google)
 - Regular expression validation
 
-## ⚡ Getting Started
+## Getting Started
 This project was developed using **Go Gin**, **Postgres/MySQL**, and **Web3.js**.  
 To explore the code:  
 1. Clone the repository  
@@ -63,26 +63,26 @@ To explore the code:
 ⚠️ Note: This project is not currently maintained as a runnable app,  
 but the codebase provides a solid reference for blockchain integration in Gin.  
 
-## 📌 Project Notes
+## Project Notes
 This repo represents my work during the development phase of Accord365. While I was not able to complete every feature, the following milestones were achieved:
 
 - Successful integration of blockchain interactions into a Go/Gin web app.
 - End-to-end testing of token transactions in Ethereum testnets.
 - Client meetings, documentation, and planning to support the next developer.
 
-## 🤝 Collaboration
+## Collaboration
 - Partnered with teammates on JavaScript and Go development challenges.
 - Reached out for peer support on routing problems.
 - Led debriefs with the client to ensure transparency and alignment.
 
-## 📚 Lessons Learned
+## Lessons Learned
 Working on Accord365 gave me hands-on experience with:
 - Designing for both traditional databases and blockchain systems in the same application  
 - Implementing authentication flows in a new backend framework (Gin)  
 - Balancing client requirements with technical feasibility through prototyping and iteration  
 - The importance of clear project organization, which I improved by documenting plans and creating a mobile to-do tracker  
 
-## 🔮 Future Development
+## Future Development
 If continued, the next developer could expand this foundation by:
 
 - Finalizing the Gin routing logic and improving scalability.
